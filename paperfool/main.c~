@@ -1,0 +1,83 @@
+#include "stepper.h"
+#include "draw.h"
+#include <signal.h>
+#include <stdint.h>
+#include "device.h"
+#include "font.h"
+
+/* Initialises everything. */
+void init(void);
+
+int i = 0;
+
+int main( void )
+{
+  static stepperdir_t xdir = CW;
+  static stepperdir_t ydir = CW;
+  static uint16_t count = 0;
+  init();
+
+  //  stepper_step(Y, ACW, 3000);
+  //  while(stepper_busy(Y));
+  //  stepper_step(Y, CW, 5);
+  //  while(stepper_busy(Y));
+  
+  //moveXY(0, -20);
+  setMoveXY(&moveXY);
+  setPenPos(&penPos);
+  /*
+  moveXY(20, 0);
+  moveXY(0, 20);
+  moveXY(-20, 0);
+  moveXY(0, -20);
+  */
+  //  moveXY(0, -60);
+  print("A");
+
+  
+  while (1)
+    {
+      /*      stepper_step(X, CW, 48);
+      while (stepper_busy(X));
+      stepper_step(X, ACW, 48*2);
+      while (stepper_busy(X));
+      */
+      
+      /*if (!stepper_busy(Y))
+	{
+	  stepper_step(Y, xdir, 3600);
+	  xdir = !xdir;
+	  }*/
+
+    }
+}
+
+void init(void)
+{
+  /* GPIO: All inputs */
+  P1DIR = P2DIR = P3DIR = P4DIR = P5DIR = P6DIR = 0;
+  
+  /* Disable the watchdog timer */
+  //  WDTCTL = WDTHOLD | WDTPW;
+
+
+  /* Use a 16 MHz clock (DCO) */
+  DCOCTL = CALDCO_16MHZ;
+  BCSCTL1 &= ~0x0f;
+  BCSCTL1 |= 
+    /*YT2O=0: YT2 is on*/
+    /*YTS=0: LFYT1 mode select. 0 -Low frequency mode*/
+    DIVA_0 /* ACLK Divider 0: /1 */
+    |CALBC1_16MHZ; /* BCSCTL1 Calibration Data for 16MHz */
+  
+  BCSCTL2 = SELM_DCOCLK	/* MCLK from DCO */
+    /* DIVMx = 0 : No MCLK divider */
+    /* SELS = 0: SMCLK from DCO */
+    | DIVS_DIV4/* : Divide SMCLK by 1 = 16MHz*/
+    /* DCOR = 0 : DCO internal resistor */;
+
+  stepper_init();
+  draw_init();
+  eint();
+}
+
