@@ -342,8 +342,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.0911688"
-     inkscape:cx="91.372743"
-     inkscape:cy="945.89502"
+     inkscape:cx="63.775937"
+     inkscape:cy="944.77749"
      inkscape:document-units="mm"
      inkscape:current-layer="layer7"
      showgrid="true"
@@ -353,8 +353,8 @@
      inkscape:object-nodes="true"
      inkscape:snap-smooth-nodes="true"
      inkscape:snap-global="true"
-     inkscape:window-width="1274"
-     inkscape:window-height="948"
+     inkscape:window-width="1280"
+     inkscape:window-height="951"
      inkscape:window-x="0"
      inkscape:window-y="25">
     <inkscape:grid
@@ -400,7 +400,8 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     style="display:none">
+     style="display:none"
+     sodipodi:insensitive="true">
     <g
        id="g1441">
       <path
@@ -703,31 +704,31 @@
      inkscape:groupmode="layer"
      id="layer6"
      inkscape:label="fpc"
-     style="display:inline">
+     style="display:none">
     <path
        sodipodi:nodetypes="ccccccccc"
-       d="m 106.30401,109.72309 5.31496,-23.38582 0,-26.22047 -39.330706,0 0,26.22047 5.31496,23.38582 0,31.88977 28.700786,0 0,-31.88977 z"
+       d="m 106.30401,99.29976 5.31496,23.38582 0,26.22047 -39.330706,0 0,-26.22047 5.31496,-23.38582 0,-31.88977 28.700786,0 0,31.88977 z"
        style="fill:none;stroke:#00ff00;stroke-width:0.35433072;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect12-0" />
     <rect
-       y="59.865753"
+       y="-149.1571"
        x="62.367004"
        height="89.291344"
        width="59.173229"
        id="rect820"
-       style="fill:none;stroke:#00ff00;stroke-width:0.35433072;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+       style="fill:none;stroke:#00ff00;stroke-width:0.35433072;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       transform="scale(1,-1)" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer5"
      inkscape:label="ablate"
-     style="display:none"
-     sodipodi:insensitive="true">
+     style="display:none">
     <g
        id="layer2-3"
        inkscape:label="ablate"
        style="display:inline"
-       transform="translate(-33.302286,-120.84288)">
+       transform="matrix(1,0,0,-1,-33.302286,329.8869)">
       <path
          style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.35433072;stroke-miterlimit:4;stroke-opacity:1"
          d="m 145.98425,180.70864 0,26.92913 -5.34375,22.67717 0,33.3232 -30.79798,0 0,-33.3232 -5.3125,-22.67717 0,-26.92913 m 0,0 -8.535681,0 0,89.3125 59.187501,0 0,-89.3125 -9.19759,0"
@@ -738,10 +739,11 @@
   <g
      inkscape:groupmode="layer"
      id="layer7"
-     inkscape:label="tape">
+     inkscape:label="tape"
+     style="display:inline">
     <path
-       style="fill:none;stroke:#ff0000;stroke-width:0.35433070999999999;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="M 63.78125 60.21875 L 63.78125 148.8125 L 70.875 148.8125 L 72.625 148.8125 L 76.875 148.8125 L 76.875 109.84375 L 72.625 92.28125 L 72.625 60.21875 L 63.78125 60.21875 z "
+       style="fill:none;stroke:#ff0000;stroke-width:0.35433072;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 63.779528,148.81887 0,-88.593747 7.09375,0 1.75,0 4.25,0 0,38.96875 -4.25,17.562497 0,32.0625 -8.84375,0 z"
        id="path814-4" />
     <path
        sodipodi:type="arc"
@@ -785,7 +787,7 @@
        transform="matrix(0.92598424,0,0,0.92598424,47.588462,41.442286)" />
     <path
        style="fill:none;stroke:#ff0000;stroke-width:0.35433072;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 120.46703,60.22513 0,88.59375 -7.09375,0 -1.75,0 -4.25,0 0,-38.96875 4.25,-17.562501 0,-32.062499 8.84375,0 z"
+       d="m 120.46703,148.81888 0,-88.59375 -7.09375,0 -1.75,0 -4.25,0 0,38.96875 4.25,17.5625 0,32.0625 8.84375,0 z"
        id="path814-4-6" />
   </g>
 </svg>
