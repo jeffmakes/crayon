@@ -4,10 +4,6 @@
 #include "lcd.h"
 #include "adc.h"
 #include "pwm.h"
-#include "uart.h"
-#include "filter.h"
-
-#define SETPOINT 6000 / 3
 
 void init(void);
 
@@ -29,6 +25,63 @@ interrupt (PORT2_VECTOR) port2isr(void)
   // lcdvalue(bees);
 }
 
+
+//Fires at 400Hz (CCR0 timer reset)
+interrupt (TIMERA0_VECTOR) pwm_periodinterrupt()
+{
+  #define SETPOINT 700
+  static uint16_t counter = 0;
+  uint16_t temperature = 0; // temperature = degrees C *10. Eg 300 = 30 degrees C
+
+  uint8_t kp = 60;
+  uint8_t ki = 5;
+  uint8_t kd = 80;
+  static int32_t perror = 0;
+  static int32_t ierror = 0;
+  static int32_t derror = 0;  
+  static int32_t prev_perror = 0;
+  static uint8_t itimeout = 90;
+  static uint8_t dtimeout;
+  static int32_t pid = 0;
+  static int32_t pwmout = 0;
+ 
+  if (counter++ == 40)
+    {
+      counter = 0;
+      // Every 100ms...      
+      temperature = (uint16_t)((uint32_t)(adc_getaverage()) * 2500 / 4095);
+      
+      //display temperature
+      lcd_dispvalue((uint16_t)temperature);
+
+      perror = (int32_t)SETPOINT - temperature;
+      derror = perror - prev_perror;
+      if (itimeout++ == 100)
+	{
+	  if ((pwmout != PWM_MAX) && (pwmout != PWM_MIN))
+	    ierror += perror;
+	  itimeout = 0;
+	}
+      if (dtimeout++ == 50)
+	{
+	  prev_perror = perror;
+	  dtimeout = 0;
+	}
+
+      pid = (kp * perror) + (ki * ierror) + (kd * derror); 
+      pwmout = pid;
+      if (pwmout > PWM_MAX)
+	pwmout = PWM_MAX;
+      if (pwmout < PWM_MIN)
+	pwmout = PWM_MIN;
+
+      pwm_set((uint16_t)pwmout);
+    }
+  
+  TACCTL0 &= ~CCIFG;
+}
+
+
 int main(void) 
 {
   unsigned long vin=0;
@@ -38,7 +91,7 @@ int main(void)
   signed long prev_perror = 0;
   signed long ierror = 0;
   signed long derror = 0;
-  signed long kp = 30;
+  volatile signed long kp = 30;
   signed long ki = 4;
   signed long kd = 20;
   signed long pterm = 0;
@@ -63,25 +116,17 @@ int main(void)
   unsigned char dead = 4;
 
   unsigned char bias=0;
-  
+
   init();
   lcd_clear();
 
   while (1) 
     {
-      //IE1=128;
 
+      /*
       //find median vin value
       vin = *filter(adcbuffer);
-      
-      //display output voltage
-      if ((lcdtimer++) == lcdtimeout)
-	{
-	  //scale to voltage for human reading
-	  lcd_dispvalue(vin*3);
-	  lcdtimer = 0;
-	}
-     
+           
       //proportional error
       perror = (signed long)(SETPOINT - vin);
 
@@ -132,16 +177,7 @@ int main(void)
 	new_pwmout = (signed long)pwm_min;
 
       pwm_set((unsigned int)new_pwmout);
-
-      //output debug info by serial if required
-      if (p_pid)
-	{	
-	  uart_txwritebuff_char('q');
-	  uart_txwritebuff_word((unsigned int)vin);
-	  
-	  uart_txwritebuff_char('r');      
-	  uart_txwritebuff_word((unsigned int)pwmout);            
-	}
+      */
     }
 
 }
@@ -179,7 +215,7 @@ void init(void)
   lcd_init();
   adc_init();
   pwm_init();
-  uart_init();
+  //  uart_init();
   
   eint(); //enable interrupts
 }

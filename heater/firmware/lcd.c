@@ -59,7 +59,7 @@ void lcd_dispvalue(unsigned int value)
   unsigned char twodp = 0;
   unsigned char i = 0;
   
-  if (value<=1999)
+  /*if (value<=1999)
     {
       if (value>999)
 	LCDM15 = 0x11;
@@ -78,7 +78,7 @@ void lcd_dispvalue(unsigned int value)
       value = value / 10;
       
       twodp = 1;
-    }
+      }*/
 
   //display units and tens
   for (i=0;i<4;i++)
@@ -89,6 +89,8 @@ void lcd_dispvalue(unsigned int value)
     lcd[i+10]=digit[((value/100)%10)*4 + i];
 
   //set the second decimal point if necessary
-  if (twodp)
-    LCDM14 |= 0x10;
+  //  if (twodp)
+  //    LCDM14 |= 0x10;
+
+  LCDM4 |= 0x10; //decimal point
 }

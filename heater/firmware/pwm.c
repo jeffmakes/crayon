@@ -2,6 +2,7 @@
 
 #include <msp430x43x.h>
 #include "pwm.h"
+#include <signal.h>
 
 void pwm_set(unsigned int pwmvalue)
 {
@@ -18,6 +19,7 @@ void pwm_init()
   //set up timer A
   //source from SMCLK. Count up to CCR0 value
   TACTL = TASSEL_SMCLK | MC_UPTO_CCR0 | ID_0;
+
   
   //set up output modules 0 and 1 to generate PWM
   TACCTL0 = OUTMOD_TOGGLE;
@@ -28,5 +30,7 @@ void pwm_init()
   //set CCR1 to initial PWM value
   TACCR1 = PWM_INIT;  
   
+  //Enable CCR0 overflow interrupt
+  TACCTL0 |= CCIE;
 }
 
