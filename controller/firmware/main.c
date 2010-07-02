@@ -62,7 +62,7 @@ void init(void)
   P8SEL=0;
   
   /* Disable the watchdog timer */
-  //  WDTCTL = WDTHOLD | WDTPW;
+  WDTCTL = WDTHOLD | WDTPW;
 
 
   /* Use a 16 MHz clock (DCO) */
@@ -77,25 +77,16 @@ void init(void)
   BCSCTL2 = SELM_DCOCLK	/* MCLK from DCO */
     /* DIVMx = 0 : No MCLK divider */
     /* SELS = 0: SMCLK from DCO */
-    | DIVS_DIV2 /* : Divide SMCLK by 2 = 8MHz*/
+    | DIVS_DIV1 /* : Divide SMCLK by 1 = 16MHz*/
     /* DCOR = 0 : DCO internal resistor */;
 
-  /* row drivers are on P1 and the low 5 bits of P2 */
-  P1OUT = 0;
-  P2OUT = 0;
-  P1DIR = 0xff;
-  P2DIR = 0x1f;
-  /* column drivers are on P7 and P8, which together may be addressed as PA */
-  /* p-channel fets are level-translated with pull-up resistors, so keep PAOUT = 0 */
-  /* and use PADIR register to assert or tristate. */
+
+  /* DAC bus is on P7 and P8, which together may be addressed as PA */
 
   PAOUT = 0;
-  PADIR = 0;
+  PADIR = 0xffff;		/* all outputs */
 
-  SVSCTL = VLD_3 | PORON;		/* SVS at 2.2V */
-
-
-  draw_init();
+  //  SVSCTL = VLD_3 | PORON;		/* SVS at 2.2V */
   
   eint();
 }
