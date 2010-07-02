@@ -1,6 +1,5 @@
 #include "device.h"
-#include "video.h"
-#include "draw.h"
+#include "wavegen.h"
 #include <signal.h>
 #include "/usr/msp430/include/msp430/svs.h"
 
@@ -8,49 +7,14 @@
 /* Initialises everything. */
 void init(void);
 
-int i = 0;
+int dummy = 0;
 
 int main( void )
 {
-  int16_t frame = 0 ;
-  int8_t frameincrement = 4;
-  uint8_t vidbackwards = 0;
   init();
 
-  P1OUT = 0;
-
-  clear_buffer(fb0);
-  clear_buffer(fb1);
-  draw_unpackframe(frame, drawfb);
   while (1)
     {
-      /* wait for frame-change compare */
-      while ( !(TBCCTL0 & CCIFG) );
-      TBCCTL0 &= ~CCIFG;
-      /* swap framebuffers */
-      frameswitch=1;
-
-      while(frameswitch);
-      /* unpack next frame into loading buffer*/
-      clear_buffer(loadfb);
-      draw_unpackframe(frame, loadfb);
-
-      if (vidbackwards)
-	{
-	  if ((frame-=frameincrement) <= 0)
-	    {
-	      frame = 0;
-	      vidbackwards = 0;
-	    }
-	}
-      else 
-	{
-	  if((frame+=frameincrement) >= (videolength-1))
-	    {
-	      frame = videolength - 1;
-	      vidbackwards = 1;
-	    }
-	}
       
     }
 }
@@ -64,7 +28,6 @@ void init(void)
   /* Disable the watchdog timer */
   WDTCTL = WDTHOLD | WDTPW;
 
-
   /* Use a 16 MHz clock (DCO) */
   DCOCTL = CALDCO_16MHZ;
   BCSCTL1 &= ~0x0f;
@@ -72,7 +35,7 @@ void init(void)
     /*XT2O=0: XT2 is on*/
     /*XTS=0: LFXT1 mode select. 0 -Low frequency mode*/
     DIVA_0 /* ACLK Divider 0: /1 */
-    |CALBC1_16MHZ; /* BCSCTL1 Calibration Data for 16MHz */
+    | CALBC1_16MHZ; /* BCSCTL1 Calibration Data for 16MHz */
   
   BCSCTL2 = SELM_DCOCLK	/* MCLK from DCO */
     /* DIVMx = 0 : No MCLK divider */
@@ -80,14 +43,8 @@ void init(void)
     | DIVS_DIV1 /* : Divide SMCLK by 1 = 16MHz*/
     /* DCOR = 0 : DCO internal resistor */;
 
-
-  /* DAC bus is on P7 and P8, which together may be addressed as PA */
-
-  PAOUT = 0;
-  PADIR = 0xffff;		/* all outputs */
-
   //  SVSCTL = VLD_3 | PORON;		/* SVS at 2.2V */
-  
+  wavegen_init();
   eint();
 }
 
