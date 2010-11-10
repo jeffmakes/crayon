@@ -3,7 +3,6 @@
 #include <signal.h>
 #include "/usr/msp430/include/msp430/svs.h"
 
-
 /* Initialises everything. */
 void init(void);
 
@@ -12,10 +11,25 @@ int dummy = 0;
 int main( void )
 {
   init();
-
+  volatile uint32_t i = 1000;
+  uint8_t leds;
+  
+  P5DIR = 0xff;
   while (1)
     {
-      
+      /* P4OUT &= ~(1<<5);	        /\* Apply negative going pulse on !RST to reset DAC (necessary?) *\/ */
+      /* i = 200000;  */
+      /* while (i--); */
+      /* P4OUT |= (1<<5); */
+      /* i = 200000; while (i--); */
+      /* P4OUT |= (1<<6);		/\* Apply positive going pulse on PSAVE to get DAC to work. (Necessary, but not sure why.) *\/ */
+      /* i = 200000; while (i--); */
+      /* P4OUT &= ~(1<<6); */
+
+      i = 200000; while (i--); 
+      if ((++leds)==17)
+	leds = 0;
+      P5OUT = leds << 4;
     }
 }
 
@@ -45,6 +59,6 @@ void init(void)
 
   //  SVSCTL = VLD_3 | PORON;		/* SVS at 2.2V */
   wavegen_init();
-  eint();
+  //  eint();
 }
 

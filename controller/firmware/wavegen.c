@@ -2,29 +2,40 @@
 #include <signal.h>
 #include "device.h"
 #include "wavegen.h"
-uint16_t wavetable[WAVETABLE_SZ] = {10,20,30,40,50,60,70,80,90,10,110,120,130,140,150,160};
+//Each step lasts 1/4MHz = 0.25us
+uint16_t wavetable[WAVETABLE_SZ] = 
+  {500,475,450,425,400,375,350,325,300,275,250,225,200,175,150,125,100,75,50,25,0,0,0,0,0,0,0,0,125,250,375,500,625,750,875,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,975,950,925,900,875,850,825,800,775,750,725,700,675,650,625,600,575,550,525,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500};
 
 void wavegen_init()
 {
+  volatile uint32_t i = 200000;
+
   /* DAC bus is on P7 and P8, which together may be addressed as PA */
   PAOUT = 0;
-  PADIR = 0xffff;		/* all outputs */
+  PADIR = 0xe3ff;		/* all outputs, except P8.2, which is DACLAT on
+				   the PCB, and must be overridden by P4.4 and
+				   P8.3 which is !RST on the PCB and must be overridden
+				   by P4.5 and P8.4 which is PSAVE which must be overridden
+				   by P4.6*/
 
-  TACTL = TASSEL_SMCLK		/* Source Timer A from SMCLK (= MCLK = 16MHz) */
-    | MC_UPTO_CCR0;		/* Count to CCR0 and reset */
-  TACCR0 = 4;			/* Overflow at 16/4=4MHz. Used to trigger DMA */
-  TACCR1 = 2;
-  TACCTL1 = OUTMOD_SET_RESET;	/* Create pulses at same frequency as overflow, but out of phase. These are used as the DACLAT signal to latch data into the external DAC.*/
-  P1SEL |= (1<<6);		/* Enable TA1 output on P1.6 (DACLAT*/
-  P1OUT |= (1<<6);		/* Enable output driver on P1.6 (DACLAT) */
-     
-  /* TBCTL = TBSSEL_SMCLK		/\* Source Timer B from SMCLK (= MCLK = 16MHz) *\/ */
-  /*   | ID_DIV8			/\* divide by 8 = 2MHz *\/ */
-  /*   | MC_UPTO_CCR0; */
-  /* TBCCTL0 |= CCIE;		/\* Enable interrupt *\/ */
-  /* TBCCR0 = 50000;		/\* 50ms Video frame end interrupt *\/ */
+  //P4DIR |= (1<<5) | (1<<4) | (1<<6); /* DACLAT, !RST, PSAVE */
+  P4DIR |= (1<<5) | (1<<4); /* DACLAT, !RST, PSAVE */
 
-  DMACTL0 =  DMA0TSEL_TACCR0;	/* Trigger DMA (channel 0) transfer on TACCR0  */
+  /* P4OUT &= ~(1<<5);	        /\* Apply negative going pulse on !RST to reset DAC (necessary?) *\/ */
+  /* i = 20000; while (i--); */
+  /* P4OUT |= (1<<5); */
+  /* i = 200000; while (i--); */
+  /* P4OUT |= (1<<6);		/\* Apply positive going pulse on PSAVE to get DAC to work. (Necessary, but not sure why.) *\/ */
+  /* i = 200000; while (i--); */
+  /* P4OUT &= ~(1<<6);	 */
+  
+  P4SEL |= (1<<4);		/* Enable TB2 output on P4.4 (DACLAT) */
+  
+
+  /* The DMA controller is configured before the timer. Otherwise, the TBCCR2 CCIFG flag may already be set */     
+  /* which is a problem because the DMA controller is edge triggered, will never be triggered, and will never reset CCIFG */
+  DMACTL0 =  DMA0TSEL_TBCCR2;	/* Trigger DMA (channel 0) transfer on TBCCR2  */
+  TBCCR2 = 1;			/* Transfer occurs on TB=1, then DACLAT happens at TB=2 */
   DMA0CTL = DMADT_SINGLEREPEAT 	/* Repeat-single-channel mode */
     | DMADSTINCR_0 		/* Don't increment destination address */
     | DMASRCINCR_3		/* Increment source address */
@@ -35,6 +46,16 @@ void wavegen_init()
   DMA0SA = (uint16_t)&wavetable[0];     /* Source is the wavetable array*/
   DMA0DA = (uint16_t)&PAOUT;    /* Destination is DAC data bus*/
   DMA0SZ = (WAVETABLE_SZ-1);   /* Size of wave table */
+
+
+  TBCTL = TBSSEL_SMCLK		/* Source Timer A from SMCLK (= MCLK = 16MHz) */
+    | MC_UPTO_CCR0;		/* Count to CCR0 and reset */
+  //| MC_CONT;
+  TBCCR0 = 3;			/* Overflow at 16/4=4MHz. Used to trigger DMA */
+  
+  TBCCR4 = 2;
+  TBCCTL4 = OUTMOD_SET_RESET;	/* Create pulses on TB4 at same frequency as overflow, but out of phase.
+				   These are used as the DACLAT signal to latch data into the external DAC.*/
 } 
  
 /* interrupt (TIMERB0_VECTOR) tb_endofframe(void) */
