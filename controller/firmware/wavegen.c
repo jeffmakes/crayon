@@ -34,12 +34,12 @@ void wavegen_init()
   DMA0SA = (uint16_t)&wavetable[0];     /* Source is the wavetable array*/
   DMA0DA = (uint16_t)&PAOUT;    /* Destination is DAC data bus*/
   DMA0SZ = (WAVETABLE_SZ-1);   /* Size of wave table */
-  DMA0CTL = DMADT_SINGLEREPEAT 	/* Repeat-single-channel mode */
+  DMA0CTL = DMADT_SINGLE 	/* Block transfer mode */
     | DMADSTINCR_0 		/* Don't increment destination address */
-    | DMASRCINCR_3		/* Increment source address */
+    | DMASRCINCR_3;		/* Increment source address */
+       
     /* DMADSTBYTE = 0 - destination is word */
     /* DMASRCBYTE = 0 - sourceis word */
-    | DMAEN;			/* Enable DMA channel 0 */
   //| DMAIE;			/* Enable interrupt */
   
 
@@ -52,6 +52,12 @@ void wavegen_init()
   TBCCTL4 = OUTMOD_SET_RESET;	/* Create pulses on TB4 at same frequency as overflow, but out of phase.
 				   These are used as the DACLAT signal to latch data into the external DAC.*/
 } 
+
+void wavegen_drop()
+{
+  TBCCTL2 &= ~CCIFG;		/* Clear TBCCR2 CCIFG */
+  DMA0CTL |= DMAEN;		/* Enable DMA channel 0. */
+}
  
 /* interrupt (TIMERB0_VECTOR) tb_endofframe(void) */
 /* { */
