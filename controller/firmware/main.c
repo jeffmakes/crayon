@@ -17,7 +17,10 @@ int main( void )
   P5DIR = 0xff;
   while (1)
     {
-      i = 200000; while (i--); 
+      for (i=0;i<20;i++);
+
+      wavegen_drop();
+      
       if ((++leds)==17)
 	leds = 0;
       P5OUT = leds << 4;
@@ -50,6 +53,7 @@ void init(void)
 
   //  SVSCTL = VLD_3 | PORON;		/* SVS at 2.2V */
   wavegen_init();
+  printhead_init();
   //  eint();
 }
 
