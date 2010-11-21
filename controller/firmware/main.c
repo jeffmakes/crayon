@@ -1,5 +1,6 @@
 #include "device.h"
 #include "wavegen.h"
+#include "printhead.h"
 #include <signal.h>
 #include "/usr/msp430/include/msp430/svs.h"
 
@@ -11,19 +12,29 @@ int dummy = 0;
 int main( void )
 {
   init();
-  volatile uint32_t i = 1000;
+  volatile uint32_t j,i;
+  uint8_t nozzle =0;
   uint8_t leds;
   
   P5DIR = 0xff;
   while (1)
     {
-      for (i=0;i<20;i++);
+      for (nozzle=0;nozzle<K_NOZZLES;nozzle++)
+	{
+	  for (i=0;i<K_NOZZLES;i++)
+	    bk_data[i]=0;
+	  bk_data[nozzle] = 1;
 
-      wavegen_drop();
+	  for (j=0;j<200;j++)
+	    {
+	      for (i=0;i<20;i++);
+	      printhead_period();
+	    }
+	}
       
       if ((++leds)==17)
 	leds = 0;
-      P5OUT = leds << 4;
+      //P5OUT = leds << 4;
     }
 }
 

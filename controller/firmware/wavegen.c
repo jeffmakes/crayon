@@ -55,8 +55,16 @@ void wavegen_init()
 
 void wavegen_drop()
 {
+  volatile uint8_t bee;
   TBCCTL2 &= ~CCIFG;		/* Clear TBCCR2 CCIFG */
+  DMA0CTL &= ~DMAIFG;
   DMA0CTL |= DMAEN;		/* Enable DMA channel 0. */
+  
+  while (DMA0CTL & DMAEN)
+    {
+      TBCCTL2 &= ~CCIFG;		/* Clear TBCCR2 CCIFG */
+      bee++;	/* Wait for end of transfer */
+    }
 }
  
 /* interrupt (TIMERB0_VECTOR) tb_endofframe(void) */
