@@ -30,6 +30,10 @@ void wavegen_init()
   /* which is a problem because the DMA controller is edge triggered, will never be triggered, and will never reset CCIFG */
   DMACTL0 =  DMA0TSEL_TBCCR2;	/* Trigger DMA (channel 0) transfer on TBCCR2  */
   TBCCR2 = 1;			/* Transfer occurs on TB=1, then DACLAT happens at TB=2 */
+  
+  DMA0SA = (uint16_t)&wavetable[0];     /* Source is the wavetable array*/
+  DMA0DA = (uint16_t)&PAOUT;    /* Destination is DAC data bus*/
+  DMA0SZ = (WAVETABLE_SZ-1);   /* Size of wave table */
   DMA0CTL = DMADT_SINGLEREPEAT 	/* Repeat-single-channel mode */
     | DMADSTINCR_0 		/* Don't increment destination address */
     | DMASRCINCR_3		/* Increment source address */
@@ -37,10 +41,7 @@ void wavegen_init()
     /* DMASRCBYTE = 0 - sourceis word */
     | DMAEN;			/* Enable DMA channel 0 */
   //| DMAIE;			/* Enable interrupt */
-  DMA0SA = (uint16_t)&wavetable[0];     /* Source is the wavetable array*/
-  DMA0DA = (uint16_t)&PAOUT;    /* Destination is DAC data bus*/
-  DMA0SZ = (WAVETABLE_SZ-1);   /* Size of wave table */
-
+  
 
   TBCTL = TBSSEL_SMCLK		/* Source Timer A from SMCLK (= MCLK = 16MHz) */
     | MC_UPTO_CCR0;		/* Count to CCR0 and reset */
