@@ -17,15 +17,6 @@ int main( void )
   P5DIR = 0xff;
   while (1)
     {
-      /* P4OUT &= ~(1<<5);	        /\* Apply negative going pulse on !RST to reset DAC (necessary?) *\/ */
-      /* i = 200000;  */
-      /* while (i--); */
-      /* P4OUT |= (1<<5); */
-      /* i = 200000; while (i--); */
-      /* P4OUT |= (1<<6);		/\* Apply positive going pulse on PSAVE to get DAC to work. (Necessary, but not sure why.) *\/ */
-      /* i = 200000; while (i--); */
-      /* P4OUT &= ~(1<<6); */
-
       i = 200000; while (i--); 
       if ((++leds)==17)
 	leds = 0;

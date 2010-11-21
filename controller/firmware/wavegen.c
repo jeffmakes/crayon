@@ -19,19 +19,12 @@ void wavegen_init()
 				   by P4.5 and P8.4 which is PSAVE which must be overridden
 				   by P4.6*/
 
-  //P4DIR |= (1<<5) | (1<<4) | (1<<6); /* DACLAT, !RST, PSAVE */
-  P4DIR |= (1<<5) | (1<<4); /* DACLAT, !RST, PSAVE */
+  P4DIR |= (1<<5) | (1<<4); /* DACLAT, !RST */
 
   P4OUT &= ~(1<<5);	        /* Apply negative going pulse on !RST to reset DAC (necessary?) */
   i = 20000; while (i--);
   P4OUT |= (1<<5);
-  i = 200000; while (i--);
-  P4OUT |= (1<<6);		/* Apply positive going pulse on PSAVE to get DAC to work. (Necessary, but not sure why.) */
-  i = 200000; while (i--);
-  P4OUT &= ~(1<<6);
-  
   P4SEL |= (1<<4);		/* Enable TB2 output on P4.4 (DACLAT) */
-  
 
   /* The DMA controller is configured before the timer. Otherwise, the TBCCR2 CCIFG flag may already be set */     
   /* which is a problem because the DMA controller is edge triggered, will never be triggered, and will never reset CCIFG */
