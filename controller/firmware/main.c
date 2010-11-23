@@ -22,7 +22,7 @@ int main( void )
       for (nozzle=0;nozzle<K_NOZZLES;nozzle++)
 	{
 	  for (i=0;i<K_NOZZLES;i++)
-	    bk_data[i]=0;
+	    bk_data[i]=1;
 	  bk_data[nozzle] = 1;
 
 	  for (j=0;j<200;j++)
