@@ -122,62 +122,7 @@ int main(void)
 
   while (1) 
     {
-
-      /*
-      //find median vin value
-      vin = *filter(adcbuffer);
-           
-      //proportional error
-      perror = (signed long)(SETPOINT - vin);
-
-      //deadband
-      if (abs(perror) < dead)
-	perror=0;
-      
-      //integral error
-      if ((itimer++) == itimeout)
-      {
-	//don't add to ierror when output is saturated to avoid windup
-	if (nowind || ((pwmout != pwm_max) && (pwmout != pwm_min)))
-	  ierror = ierror + perror;
-	itimer = 0;
-      }
-
-      //derivative error
-      derror = perror - prev_perror;
-      
-      //compute differential after some number of PID cycles
-      if ((dtimer++) == dtimeout)
-	{
-	  prev_perror = perror;
-	  dtimer = 0;
-	}
-      
-      dint();
-      //proportional term
-      pterm = kp * perror;
-      //integral term
-      iterm = ki * ierror;
-      //derivative term
-      dterm = kd * derror;
-      eint();
-
-      //compute PID result
-      //result is full signed integer range ~ -32000 to +32000
-      //PWM values can be 0 to PWM_MAX (~400)
-      pid = pterm + iterm + dterm;
-      
-      //new_pwmout = (signed int)pwmout + pid;
-      new_pwmout = pid / (signed long)pid_div + bias;
-
-      //and keep to PWM limits
-      if (new_pwmout > (signed long)pwm_max)
-	new_pwmout = (signed long)pwm_max;
-      if (new_pwmout < (signed long)pwm_min)
-	new_pwmout = (signed long)pwm_min;
-
-      pwm_set((unsigned int)new_pwmout);
-      */
+      P1OUT ^= 1;
     }
 
 }
@@ -202,7 +147,7 @@ void init(void)
 
 
   //port direction registers
-  P1DIR  = 0x04;
+  P1DIR  = 0x04 | (1<<0);
   P2DIR  = 0x10;
 
   //interrupt on button press on port 2
