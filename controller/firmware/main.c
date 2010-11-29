@@ -12,9 +12,10 @@ int dummy = 0;
 int main( void )
 {
   init();
-  volatile uint32_t j,i;
+  volatile uint32_t j,i,k;
   uint8_t nozzle =0;
-  uint8_t leds;
+  uint8_t leds,dir;
+  dir = 0;
   
   P5DIR = 0xff;
   while (1)
@@ -25,13 +26,13 @@ int main( void )
 	    bk_data[i]=1;
 	  bk_data[nozzle] = 1;
 
-	  for (j=0;j<200;j++)
-	    {
-	      for (i=0;i<20;i++);
+	  for (i=0;i<20;i++);
 	      printhead_period();
-	    }
 	}
       
+      stepper_step(1,dir);
+      for (k=0; k<3000; k++);
+
       if ((++leds)==17)
 	leds = 0;
       //P5OUT = leds << 4;
@@ -65,6 +66,8 @@ void init(void)
   //  SVSCTL = VLD_3 | PORON;		/* SVS at 2.2V */
   wavegen_init();
   printhead_init();
+  stepper_init();
+  stepper_enable(1);
   //  eint();
 }
 
