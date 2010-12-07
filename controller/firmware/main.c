@@ -12,26 +12,32 @@ int dummy = 0;
 int main( void )
 {
   init();
-  volatile uint32_t j,i,k;
+  volatile uint32_t j,i,k, drops, steps;
   uint8_t nozzle =0;
   uint8_t leds,dir;
-  dir = 0;
+  dir =1;
   
   P5DIR = 0xff;
+
+  for (i=0;i<K_NOZZLES;i++)	/* Fire all nozzles */
+    bk_data[i] = 1;
+  //  bk_data[38]=1;
+  
+  steps = 0;
+
   while (1)
     {
-      for (nozzle=0;nozzle<K_NOZZLES;nozzle++)
-	{
-	  for (i=0;i<K_NOZZLES;i++)
-	    bk_data[i]=1;
-	  bk_data[nozzle] = 1;
-
-	  for (i=0;i<20;i++);
-	      printhead_period();
-	}
-      
+      //      for (drops = 0; drops<10; drops++)
+      //	{
+	  for (i=0;i<50;i++);
+	  printhead_period();
+	  //	}
       stepper_step(1,dir);
-      for (k=0; k<3000; k++);
+      if (++steps == 1300)
+	{
+	  dir ^= 1;
+	  steps=0;
+	}
 
       if ((++leds)==17)
 	leds = 0;
