@@ -53,6 +53,27 @@ void wavegen_init()
 				   These are used as the DACLAT signal to latch data into the external DAC.*/
 } 
 
+void wavegen_cleanpulse()
+{
+  volatile uint32_t i = 0;
+  P4SEL &= ~(1<<4);		/* Disable TB2 output on P4.4 (DACLAT) */
+
+  PAOUT = 0;
+  P4OUT |= (1<<4);		/* DACLAT high */
+  P4OUT &= ~(1<<4);		/* DACLAT low */
+
+  i = 400; while (i--);
+
+  PAOUT = 0xffff;
+  P4OUT |= (1<<4);		/* DACLAT high */
+  P4OUT &= ~(1<<4);		/* DACLAT low */
+  
+  P4SEL |= (1<<4);		/* Enable TB2 output on P4.4 (DACLAT) */
+
+  i = 400; while (i--);
+
+}
+
 void wavegen_drop()
 {
   volatile uint8_t bee;
@@ -66,6 +87,8 @@ void wavegen_drop()
       bee++;	/* Wait for end of transfer */
     }
 }
+
+
  
 /* interrupt (TIMERB0_VECTOR) tb_endofframe(void) */
 /* { */

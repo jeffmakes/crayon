@@ -3,6 +3,6 @@
 #define WAVETABLE_SZ 86
 void wavegen_init();
 void wavegen_drop();
-
+void wavegen_cleanpulse();
 
 #endif

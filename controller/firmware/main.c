@@ -9,11 +9,27 @@ void init(void);
 
 int dummy = 0;
 
+void cleancycle()
+{
+  uint8_t i,j,k;
+  for (j=0;j<K_NOZZLES;j++)
+    {
+      for (i=0;i<K_NOZZLES;i++)	/* clear all nozzles */
+	bk_data[i] = 0;
+      //     bk_data[j] = 1;
+      printhead_period();
+      
+      for (k=0; k<50; k++)
+	wavegen_cleanpulse();
+    }
+}
+
 int main( void )
 {
   init();
   volatile uint32_t j,i,k, drops, steps;
   uint8_t nozzle =0;
+  uint8_t cleantime = 0;
   uint8_t leds,dir;
   dir =1;
   
@@ -21,22 +37,29 @@ int main( void )
 
   for (i=0;i<K_NOZZLES;i++)	/* Fire all nozzles */
     bk_data[i] = 1;
-  //  bk_data[38]=1;
+
   
   steps = 0;
 
   while (1)
     {
-      //      for (drops = 0; drops<10; drops++)
-      //	{
-	  for (i=0;i<50;i++);
-	  printhead_period();
-	  //	}
+      for (i=0;i<K_NOZZLES;i++)	/* Fire all nozzles */
+	bk_data[i] = 1;
+      for (i=0;i<50;i++);
+      printhead_period();
+      
+      
+
       stepper_step(1,dir);
       if (++steps == 1300)
-	{
-	  dir ^= 1;
-	  steps=0;
+      	{
+      	  dir ^= 1;
+      	  steps=0;
+	  if (++cleantime == 10)
+	    {
+	      cleancycle();
+	      cleantime = 0;
+	    }
 	}
 
       if ((++leds)==17)
