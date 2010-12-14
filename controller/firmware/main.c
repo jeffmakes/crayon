@@ -55,11 +55,11 @@ int main( void )
       	{
       	  dir ^= 1;
       	  steps=0;
-	  if (++cleantime == 10)
-	    {
-	      cleancycle();
-	      cleantime = 0;
-	    }
+	  /* if (++cleantime == 10) */
+	  /*   { */
+	  /*     cleancycle(); */
+	  /*     cleantime = 0; */
+	  /*   } */
 	}
 
       if ((++leds)==17)
