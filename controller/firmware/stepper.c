@@ -10,11 +10,12 @@
 #define nRESET (1<<5)
 #define X_MOTOR 1
 #define Y_MOTOR 0
-#define CARRIAGE_LEFT 0
-#define CARRIAGE_RIGHT 1
+#define CARRIAGE_LEFT 1
+#define CARRIAGE_RIGHT 0
 #define STOPPED 3;
 
 uint16_t carriagepos;
+uint8_t xdir;
 
 /* Motor 0 is the right-hand driver, black connector. */
 /* Motor 1 is the left-hand driver, red connector. */
@@ -46,7 +47,7 @@ void stepper_init()
 
 void stepper_xhome()
 {
-  stepper_setxvelocity(4000, CARRIAGE_LEFT);
+  stepper_setxvelocity(4000, CARRIAGE_RIGHT);
   while ( !stepper_ishome() );
   stepper_setxvelocity(0, 0);
 }
@@ -65,6 +66,7 @@ void stepper_setxvelocity(uint16_t interval, uint8_t direction)
 
 interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
 {
+  
   TACTL &= ~TAIFG;
 }
 
@@ -80,9 +82,9 @@ void stepper_setdir(uint8_t motor, uint8_t direction)
   if (motor == 1)
     {
       if (direction)
-	P1OUT |= DIR;
+	P2OUT |= DIR;
       else
-	P1OUT &= ~DIR;
+	P2OUT &= ~DIR;
     }
 }
 
