@@ -27,20 +27,31 @@ void cleancycle()
 
 int main( void )
 {
-  init();
   volatile uint32_t j,i,k, drops, steps;
   uint8_t nozzle =0;
   uint8_t cleantime = 0;
   uint8_t leds,dir;
-  dir =1;
-  
+
+  init();
   P5DIR = 0xff;
+
+  stepper_setxvelocity(0, 0);
 
   for (i=0;i<K_NOZZLES;i++)	/* Fire all nozzles */
     bk_data[i] = 1;
 
+  stepper_xhome();
   
   steps = 0;
+
+  while (1)
+    {
+      if (stepper_ishome())
+      	P5OUT |= (1<<4);
+      else
+	P5OUT &= ~(1<<4);
+
+    }
 
   while (1)
     {

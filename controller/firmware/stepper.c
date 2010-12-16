@@ -10,13 +10,21 @@
 #define nRESET (1<<5)
 #define X_MOTOR 1
 #define Y_MOTOR 0
+#define CARRIAGE_LEFT 0
+#define CARRIAGE_RIGHT 1
+#define STOPPED 3;
+
+uint16_t carriagepos;
+
 /* Motor 0 is the right-hand driver, black connector. */
 /* Motor 1 is the left-hand driver, red connector. */
 
 void stepper_init()
 {
-  P1DIR = 0xff;
-  P2DIR = 0xff;
+  carriagepos = 0;
+
+  P1DIR = EN | CONTROL | HF | DIR | CLOCK | nRESET;
+  P2DIR = EN | CONTROL | HF | DIR | nRESET;
   P1OUT = HF;   			/* Fast decay, half step */
   P2OUT = HF;
   
@@ -30,17 +38,28 @@ void stepper_init()
   TACCTL0 = OUTMOD_TOGGLE;	/* Toggle TA0 (P2.7) with TA overflow (clocks X stepper)*/
   P2SEL |= (1<<7);
   P2DIR |= (1<<7);
+
+  P6DIR &= ~(1<<5);
+  P6REN |= (1<<5);		/* Enable pull up resistor on the home switch */
+  P6OUT |= (1<<5);		/* Pull _up_ */
 }
 
-void stepper_setxvelocity(uint16_t speed, uint8_t direction)
+void stepper_xhome()
 {
-  if (speed == 0)
+  stepper_setxvelocity(4000, CARRIAGE_LEFT);
+  while ( !stepper_ishome() );
+  stepper_setxvelocity(0, 0);
+}
+
+void stepper_setxvelocity(uint16_t interval, uint8_t direction)
+{
+  if (interval == 0)
     stepper_disable(X_MOTOR);
   else
     {
       stepper_setdir(X_MOTOR, direction);
       stepper_enable(X_MOTOR);
-      TACCR0 = 65535 - speed;
+      TACCR0 = interval;
     }
 }
 

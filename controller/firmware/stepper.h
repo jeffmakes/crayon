@@ -1,6 +1,7 @@
 #ifndef __STEPPER_H
 #define __STEPPER_H
 
+#define stepper_ishome() (P6IN & (1<<5) ? 0 : 1)
 void stepper_init();
 void stepper_enable(uint8_t motor);
 void stepper_disable(uint8_t motor);
