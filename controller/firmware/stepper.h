@@ -5,5 +5,7 @@ void stepper_init();
 void stepper_enable(uint8_t motor);
 void stepper_disable(uint8_t motor);
 void stepper_step(uint8_t motor, uint8_t direction);
+void stepper_setxvelocity(uint16_t speed, uint8_t direction);
+void stepper_setdir(uint8_t motor, uint8_t direction);
 
 #endif

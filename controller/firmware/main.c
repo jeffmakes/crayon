@@ -1,4 +1,5 @@
 #include "device.h"
+#include "stepper.h"
 #include "wavegen.h"
 #include "printhead.h"
 #include <signal.h>
@@ -50,7 +51,7 @@ int main( void )
       
       
 
-      stepper_step(1,dir);
+      //      stepper_step(1,dir);
       if (++steps == 1300)
       	{
       	  dir ^= 1;
@@ -89,7 +90,8 @@ void init(void)
   BCSCTL2 = SELM_DCOCLK	/* MCLK from DCO */
     /* DIVMx = 0 : No MCLK divider */
     /* SELS = 0: SMCLK from DCO */
-    | DIVS_DIV1 /* : Divide SMCLK by 1 = 16MHz*/
+    | DIVS_DIV1 /* : Divide SMCLK by 1
+*/
     /* DCOR = 0 : DCO internal resistor */;
 
   //  SVSCTL = VLD_3 | PORON;		/* SVS at 2.2V */
@@ -97,6 +99,6 @@ void init(void)
   printhead_init();
   stepper_init();
   stepper_enable(1);
-  //  eint();
+  eint();
 }
 
