@@ -12,10 +12,10 @@
 #define Y_MOTOR 0
 #define CARRIAGE_LEFT 1
 #define CARRIAGE_RIGHT 0
-#define STOPPED 3;
+#define STOPPED 3
 
-uint16_t carriagepos;
-uint8_t xdir;
+volatile uint16_t carriagepos;
+uint8_t xstate;
 
 /* Motor 0 is the right-hand driver, black connector. */
 /* Motor 1 is the left-hand driver, red connector. */
@@ -23,6 +23,7 @@ uint8_t xdir;
 void stepper_init()
 {
   carriagepos = 0;
+  xstate = 0;
 
   P1DIR = EN | CONTROL | HF | DIR | CLOCK | nRESET;
   P2DIR = EN | CONTROL | HF | DIR | nRESET;
@@ -50,41 +51,66 @@ void stepper_xhome()
   stepper_setxvelocity(4000, CARRIAGE_RIGHT);
   while ( !stepper_ishome() );
   stepper_setxvelocity(0, 0);
+  carriagepos = 0;
 }
+
+void stepper_carriagepos(uint16_t newpos)
+{
+  if (newpos > carriagepos)
+    stepper_setxvelocity(1000, CARRIAGE_LEFT);
+  if (newpos < carriagepos)
+    stepper_setxvelocity(1000, CARRIAGE_RIGHT);
+  
+  while (carriagepos != newpos);
+  stepper_setxvelocity(0,0);
+ }
 
 void stepper_setxvelocity(uint16_t interval, uint8_t direction)
 {
   if (interval == 0)
-    stepper_disable(X_MOTOR);
+    {
+      stepper_disable(X_MOTOR);
+      xstate = STOPPED;
+    }
   else
     {
-      stepper_setdir(X_MOTOR, direction);
       stepper_enable(X_MOTOR);
+      if (direction)
+	{
+	  xstate = CARRIAGE_LEFT;
+	  P2OUT |= DIR;
+	}
+      else
+	{
+	  xstate = CARRIAGE_RIGHT;
+	  P2OUT &= ~DIR;
+	}
       TACCR0 = interval;
     }
 }
 
 interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
 {
-  
+  switch (xstate)
+    {
+    case CARRIAGE_LEFT:
+      carriagepos++;
+      break;
+    case CARRIAGE_RIGHT:
+      carriagepos--;
+      break;
+    }
   TACTL &= ~TAIFG;
 }
 
 void stepper_setdir(uint8_t motor, uint8_t direction)
 {
-  if (motor == 0)
+  if (motor == Y_MOTOR)
     {
       if (direction)
 	P1OUT |= DIR;
       else
 	P1OUT &= ~DIR;
-    }
-  if (motor == 1)
-    {
-      if (direction)
-	P2OUT |= DIR;
-      else
-	P2OUT &= ~DIR;
     }
 }
 

@@ -41,6 +41,10 @@ int main( void )
     bk_data[i] = 1;
 
   stepper_xhome();
+  stepper_carriagepos(1000); 
+  stepper_carriagepos(500);
+  stepper_carriagepos(1000);
+  stepper_xhome();
   
   steps = 0;
 
