@@ -8,4 +8,4 @@
  * - pointer to image data
  */
 
-void image_print(uint16_t *w, uint16_t *h, uint8_t * data);
+void image_print(uint16_t *w, uint16_t *h, uint8_t ** data);
