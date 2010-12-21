@@ -22,8 +22,7 @@ void stepper_init()
   xstate = 0;
 
   P1DIR = EN | CONTROL | HF | DIR | CLOCK | nRESET;
-  //  P2DIR = EN | CONTROL | HF | DIR | nRESET;
-  P2DIR = EN | CONTROL | HF | DIR | nRESET | CLOCK;
+  P2DIR = EN | CONTROL | HF | DIR | nRESET;
   P1OUT = HF;   			/* Fast decay, half step */
   P2OUT = HF;
   
@@ -35,8 +34,8 @@ void stepper_init()
 
   TACCR0 = 40000;		/* 50Hz to start with... */
   TACCTL0 = OUTMOD_TOGGLE;	/* Toggle TA0 (P2.7) with TA overflow (clocks X stepper)*/
-  //  P2SEL |= (1<<7);
-  //  P2DIR |= (1<<7);
+  P2SEL |= (1<<7);
+  P2DIR |= (1<<7);
 
   P6DIR &= ~(1<<5);
   P6REN |= (1<<5);		/* Enable pull up resistor on the home switch */
@@ -46,7 +45,6 @@ void stepper_init()
 void stepper_xhome()
 {
   volatile uint8_t i = 0;
-  //  stepper_setxvelocity(SPEED_SLOW, CARRIAGE_RIGHT);
   stepper_setxvelocity(SPEED_SLOW, CARRIAGE_RIGHT);
   while ( !stepper_ishome() )
     i++;

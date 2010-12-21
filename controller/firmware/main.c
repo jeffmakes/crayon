@@ -40,13 +40,7 @@ int main( void )
   for (i=0;i<K_NOZZLES;i++)	/* Fire all nozzles */
     bk_data[i] = 1;
 
-  //  stepper_xhome();
-
-  while (1)
-    {
-      for (i=0; i<5000; i++);
-      stepper_xstep(PAGE_FORWARDS);
-    }
+  stepper_xhome();
 
   while (1)
     {
