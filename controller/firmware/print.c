@@ -2,11 +2,14 @@
 #include "stepper.h"
 #include "printhead.h"
 #include "print.h"
+#include "image.h"
 
 /* dimensions of the nozzle test pattern*/
 #define TEST_SIZE 10
 /* number of passes necessary to deposit enough wax */
 #define NUM_PASSES = 10
+/* The nozzle to use */
+#define NOZZLE = 0
 
 volatile printstate_t printstate;
 /* for bitmap access, mostly */
@@ -15,6 +18,8 @@ volatile uint16_t pixel_index = 0;
 volatile uint16_t active_nozzle = 0;
 /* nozzle fire function call */
 uint16_t (*fptr)(void) = NULL;
+
+volatile uint8_t * img = NULL;
 
 /*
  * Dummy function 
@@ -91,6 +96,32 @@ void print_nozzle_test(void) {
 }
 
 
+/* this prints an image */
+void print_image(void) 
+{
+  uint16_t w, h;
+ 
+  /* select image to be printed - currently only default one */ 
+  image_select(&w, &h, &img);
+
+  pixel_index = 0;
+  fptr = &fire_image;
+
+  for (uint8_t z = 0; z< NUM_PASSES; z++){
+    stepper_carriagepos(2500, 1500);
+    printstate = PRINT_PRINTING;
+    /* wait for carriage to get there */
+    stepper_carriagepos(2500 - w, 1500);
+    printstate = PRINT_IDLE;
+  }
+  
+
+    stepper_feedpos(y*TEST_SIZE, 1500);
+    for (uint8_t sq = 0; sq < TEST_SIZE/2; y++){
+  }
+  fptr = NULL;
+
+}
 
 
 
@@ -128,7 +159,26 @@ void fire_nozzle_test(void)
 }
 
 
-void fire_bitmap(void)
+/* Print currently selected image */
+void fire_image(void)
 {
-  
+  /* the byte we're currently printing */
+  uint8_t c; 
+  /* the bit in the byte we want */
+  uint8_t j; 
+
+  /* all nozzles off everything */
+  for (uint8_t i=0;i<K_NOZZLES;i++) 
+    bk_data[i] = 0;
+
+
+  /* just get next bit from image data, load it, print it */
+  c = img[pixel_index/8];
+  j = pixel_index%8;
+
+  if (c & (0x01 < (7-j))) {
+    bk_data[NOZZLE] = 1;
+  } 
+  /* else fir blanks */
+  pixel_index ++;
 }
