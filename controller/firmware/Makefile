@@ -14,6 +14,9 @@ main: $(C_FILES) $(H_FILES)
 
 .PHONY: clean
 
+testimage: image.c image.h testimage.c
+	gcc -std=c99 testimage.c image.c -o testimage
+
 clean: 
 	-rm -f main 
 
