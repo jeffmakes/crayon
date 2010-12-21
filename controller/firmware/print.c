@@ -9,7 +9,11 @@
 #define NUM_PASSES = 10
 
 volatile printstate_t printstate;
+/* for bitmap access, mostly */
 volatile uint16_t pixel_index = 0;
+/* one nozzle to print them all*/
+volatile uint16_t active_nozzle = 0;
+/* nozzle fire function call */
 uint16_t (*fptr)(void) = NULL;
 
 /*
@@ -22,7 +26,7 @@ void stepper_feedpos(uint16_t newpos, uint16_t speed) {
 void print_init()
 {
   printstate = PRINT_IDLE;
-  fptr  = NULL
+  fptr  = NULL;
 }
 
 /* Called by stepper interrupt */
@@ -110,15 +114,21 @@ void fire_all(void)
 void fire_nozzle_test(void)
 {
   static noz = 0;
+  /* paranoid clearing of bk_data */
   for (uint8_t i=0;i<K_NOZZLES;i++) 
     bk_data[i] = 0;
   
-  pixel_index ++
+  pixel_index ++;
   if (pixel_index == TEST_SIZE){
     pixel_index = 0;
-    bk_data[noz] = 0;
     noz ++;
     noz%=K_NOZZLES;
-    bk_data[noz] = 1;
   }
+  bk_data[noz] = 1;
+}
+
+
+void fire_bitmap(void)
+{
+  
 }
