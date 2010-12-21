@@ -3,13 +3,14 @@
 #include "printhead.h"
 #include "print.h"
 #include "image.h"
+#include <stdlib.h>
 
 /* dimensions of the nozzle test pattern*/
 #define TEST_SIZE 10
 /* number of passes necessary to deposit enough wax */
-#define NUM_PASSES = 10
+#define NUM_PASSES 10
 /* The nozzle to use */
-#define NOZZLE = 0
+#define NOZZLE 0
 
 volatile printstate_t printstate;
 /* for bitmap access, mostly */
@@ -17,9 +18,13 @@ volatile uint16_t pixel_index = 0;
 /* one nozzle to print them all*/
 volatile uint16_t active_nozzle = 0;
 /* nozzle fire function call */
-uint16_t (*fptr)(void) = NULL;
+void (*fptr)(void) = NULL;
 
 volatile uint8_t * img = NULL;
+
+void fire_all(void);
+void fire_image(void);
+void fire_nozzle_test(void);
 
 /*
  * Dummy function 
@@ -78,50 +83,51 @@ void print_line()
  * 
  */
 void print_nozzle_test(void) {
+  uint8_t y, sq, z;
   pixel_index = 0;
   fptr = &fire_nozzle_test;
-  y = 0;
-  for (uint8_t y = 0; y < K_NOZZLES; y++){
+  for (y = 0; y < K_NOZZLES; y++){
     stepper_feedpos(y*TEST_SIZE, 1500);
-    for (uint8_t sq = 0; sq < TEST_SIZE/2; y++){
-      for (uint8_t z = 0; z< NUM_PASSES; z++){
+    for (sq = 0; sq < TEST_SIZE/2; sq++){
+      for (z = 0; z< NUM_PASSES; z++){
         stepper_carriagepos(2500, 1500);
         printstate = PRINT_PRINTING;
         /* wait for carriage to get there */
         stepper_carriagepos(2490, 1500);
       }
       printstate = PRINT_IDLE;
+    }
   }
   fptr = NULL;
 }
 
 
 /* this prints an image */
-void print_image(void) 
-{
-  uint16_t w, h;
+/* void print_image(void)  */
+/* { */
+/*   uint16_t w, h; */
  
-  /* select image to be printed - currently only default one */ 
-  image_select(&w, &h, &img);
+/*   /\* select image to be printed - currently only default one *\/  */
+/*   image_select(&w, &h, &img); */
 
-  pixel_index = 0;
-  fptr = &fire_image;
+/*   pixel_index = 0; */
+/*   fptr = &fire_image; */
 
-  for (uint8_t z = 0; z< NUM_PASSES; z++){
-    stepper_carriagepos(2500, 1500);
-    printstate = PRINT_PRINTING;
-    /* wait for carriage to get there */
-    stepper_carriagepos(2500 - w, 1500);
-    printstate = PRINT_IDLE;
-  }
+/*   for (uint8_t z = 0; z< NUM_PASSES; z++){ */
+/*     stepper_carriagepos(2500, 1500); */
+/*     printstate = PRINT_PRINTING; */
+/*     /\* wait for carriage to get there *\/ */
+/*     stepper_carriagepos(2500 - w, 1500); */
+/*     printstate = PRINT_IDLE; */
+/*   } */
   
 
-    stepper_feedpos(y*TEST_SIZE, 1500);
-    for (uint8_t sq = 0; sq < TEST_SIZE/2; y++){
-  }
-  fptr = NULL;
+/*     stepper_feedpos(y*TEST_SIZE, 1500); */
+/*     for (uint8_t sq = 0; sq < TEST_SIZE/2; y++){ */
+/*   } */
+/*   fptr = NULL; */
 
-}
+/* } */
 
 
 
@@ -134,6 +140,7 @@ void print_image(void)
 /* Fire all nozzles */
 void fire_all(void)
 {
+  uint8_t i = 0;
   /* load next pixel */
   for (i=0;i<K_NOZZLES;i++) 
     bk_data[i] = 1;
@@ -144,9 +151,9 @@ void fire_all(void)
  */
 void fire_nozzle_test(void)
 {
-  static noz = 0;
+  static uint8_t noz, i = 0;
   /* paranoid clearing of bk_data */
-  for (uint8_t i=0;i<K_NOZZLES;i++) 
+  for (i=0;i<K_NOZZLES;i++) 
     bk_data[i] = 0;
   
   pixel_index ++;
@@ -167,8 +174,10 @@ void fire_image(void)
   /* the bit in the byte we want */
   uint8_t j; 
 
+  uint8_t i;
+
   /* all nozzles off everything */
-  for (uint8_t i=0;i<K_NOZZLES;i++) 
+  for ( i=0;i<K_NOZZLES;i++) 
     bk_data[i] = 0;
 
 
