@@ -91,3 +91,4 @@ void printhead_period()
   wavegen_drop();		/* droplet */
   nchg(0);			/* re-enable nozzle charge maintain */
 }
+

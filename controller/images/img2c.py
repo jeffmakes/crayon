@@ -1,12 +1,13 @@
 from PIL import Image
 import sys
 
+W_LIMIT = 500
+
 if len(sys.argv) != 2:
     print """\nConvert RGB image to 1 bit representation in C
 
-Usage: img2c.py <image>\n\n"""
+Usage: img2c.py <image>\n\n"""%W_LIMIT
     exit()
-
 
 
 f = Image.open(sys.argv[1])

@@ -182,5 +182,7 @@ void stepper_disable(uint8_t motor)
 }
 
 
-
+uint16_t stepper_getpos() {
+    return carriagepos;
+}
 
