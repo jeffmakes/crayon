@@ -8,7 +8,7 @@
 /* dimensions of the nozzle test pattern*/
 #define TEST_SIZE 10
 /* number of passes necessary to deposit enough wax */
-#define NUM_PASSES 10
+#define NUM_PASSES 1
 /* The nozzle to use */
 #define NOZZLE 0
 
@@ -25,13 +25,6 @@ volatile uint8_t * img = NULL;
 void fire_all(void);
 void fire_image(void);
 void fire_nozzle_test(void);
-
-/*
- * Dummy function 
- */
-void stepper_feedpos(uint16_t newpos, uint16_t speed) {
-}
-
 
 void print_init()
 {
@@ -87,15 +80,16 @@ void print_nozzle_test(void) {
   pixel_index = 0;
   fptr = &fire_nozzle_test;
   for (y = 0; y < K_NOZZLES; y++){
-    stepper_feedpos(y*TEST_SIZE, 1500);
+    stepper_ystep(PAGE_FORWARDS, y*TEST_SIZE);
     for (sq = 0; sq < TEST_SIZE/2; sq++){
       for (z = 0; z< NUM_PASSES; z++){
-        stepper_carriagepos(2500, 1500);
+        stepper_carriagepos(2500, 6000);
         printstate = PRINT_PRINTING;
         /* wait for carriage to get there */
-        stepper_carriagepos(2490, 1500);
+        stepper_carriagepos(2490, 6000);
+	printstate = PRINT_IDLE;
       }
-      printstate = PRINT_IDLE;
+
     }
   }
   fptr = NULL;
@@ -122,7 +116,7 @@ void print_nozzle_test(void) {
 /*   } */
   
 
-/*     stepper_feedpos(y*TEST_SIZE, 1500); */
+/*     stepper_ystep(PAGE_FORWARD, y*TEST_SIZE); */
 /*     for (uint8_t sq = 0; sq < TEST_SIZE/2; y++){ */
 /*   } */
 /*   fptr = NULL; */

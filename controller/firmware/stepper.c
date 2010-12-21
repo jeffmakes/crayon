@@ -62,6 +62,7 @@ void stepper_carriagepos(uint16_t newpos, uint16_t speed)
     stepper_setxvelocity(speed, CARRIAGE_RIGHT);
   
   while (carriagepos != newpos);
+
   stepper_setxvelocity(0,0);
  }
 
@@ -105,22 +106,21 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
   TACTL &= ~TAIFG;
 }
 
-void stepper_ystep( uint8_t direction)
+void stepper_ystep( uint8_t direction, uint8_t steps)
 {
-  volatile uint8_t count;
+  volatile uint8_t count, i;
   if (direction)
-    {
       P1OUT |= DIR;
-      P1OUT |= CLOCK;
-      for (count = 0; count < 5; count++);
-      P1OUT &= ~CLOCK;
-    }
   else
-    {
       P1OUT &= ~DIR;
+
+  for (count = 0; count < steps; count++ )
+    {
       P1OUT |= CLOCK;
-      for (count = 0; count < 5; count++);
+      for (i = 0; i < 5; i++);
       P1OUT &= ~CLOCK;
+
+      for (i=0; i<255; i++);	/* Delay to allow stepper to move */
     }
 }
 
@@ -142,15 +142,6 @@ void stepper_xstep( uint8_t direction)
       P2OUT &= ~CLOCK;
     }
 }
-
-
-
-
-
-
-
-
-
 
 void stepper_enable(uint8_t motor)
 {

@@ -47,8 +47,7 @@ int main( void )
       print_cleancycle();
       for (i=0; i<5; i++)
 	{
-	  print_line();
-	  stepper_ystep(PAGE_FORWARDS);
+	  print_nozzle_test();
 	}
     }
 }
