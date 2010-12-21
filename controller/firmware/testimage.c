@@ -20,19 +20,19 @@ void main() {
 
     count = 0;
     for (int c=0; c < w*h/8; c++){ 
-	for (i=0; i < 8; i++) {
-	    count ++;
-	    pixel = data[c] & (0x01 << (7-i));
-	    if (pixel == 0) {
-		printf(" ");
-	    } else {
-		printf("#");
-	    }
-	    if (count % w == 0) {
-		printf("\n");
-	    }
+        for (i=0; i < 8; i++) {
+            count ++;
+            pixel = data[c] & (0x01 << (7-i));
+            if (pixel == 0) {
+                printf(" ");
+            } else {
+                printf("#");
+            }
+            if (count % w == 0) {
+                printf("\n");
+            }
 
-	}
+        }
     }
     
 }
