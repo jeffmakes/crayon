@@ -65,13 +65,14 @@ void print_line()
  * .5 mm y spacing between them.  (Assuming 0.1mm stepper resolution
  *
  * TODO Speed might be quite high
- * TODO currently only using the first 45 nozzles
+ * TODO Tricky to reset the firing function if this function is interrupted
+ * 
  */
 void print_nozzle_test(void) {
   pixel_index = 0;
   fptr = &fire_nozzle_test;
   y = 0;
-  for (uint8_t y = 0; y < K_NOZZLES/2; y++){
+  for (uint8_t y = 0; y < K_NOZZLES; y++){
     stepper_feedpos(y*TEST_SIZE, 1500);
     for (uint8_t sq = 0; sq < TEST_SIZE/2; y++){
       for (uint8_t z = 0; z< NUM_PASSES; z++){
@@ -109,12 +110,15 @@ void fire_all(void)
 void fire_nozzle_test(void)
 {
   static noz = 0;
+  for (uint8_t i=0;i<K_NOZZLES;i++) 
+    bk_data[i] = 0;
   
   pixel_index ++
   if (pixel_index == TEST_SIZE){
     pixel_index = 0;
     bk_data[noz] = 0;
     noz ++;
+    noz%=K_NOZZLES;
     bk_data[noz] = 1;
   }
 }
