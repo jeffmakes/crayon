@@ -11,5 +11,6 @@ uint8_t bk_data[K_NOZZLES];
 uint8_t cl_data[C_NOZZLES + M_NOZZLES + Y_NOZZLES];
 
 void printhead_init();
+void printhead_period();
 
 #endif

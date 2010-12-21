@@ -41,46 +41,18 @@ int main( void )
     bk_data[i] = 1;
 
   stepper_xhome();
-  stepper_carriagepos(1000); 
-  stepper_carriagepos(500);
-  stepper_carriagepos(1000);
-  stepper_xhome();
-  
-  steps = 0;
+
+  /* while (1) */
+  /*   { */
+  /*     stepper_carriagepos(1000, 1000); */
+  /*     stepper_carriagepos(500, 1000); */
+  /*   } */
 
   while (1)
     {
-      if (stepper_ishome())
-      	P5OUT |= (1<<4);
-      else
-	P5OUT &= ~(1<<4);
-
-    }
-
-  while (1)
-    {
-      for (i=0;i<K_NOZZLES;i++)	/* Fire all nozzles */
-	bk_data[i] = 1;
-      for (i=0;i<50;i++);
-      printhead_period();
-      
-      
-
-      //      stepper_step(1,dir);
-      if (++steps == 1300)
-      	{
-      	  dir ^= 1;
-      	  steps=0;
-	  /* if (++cleantime == 10) */
-	  /*   { */
-	  /*     cleancycle(); */
-	  /*     cleantime = 0; */
-	  /*   } */
-	}
-
-      if ((++leds)==17)
-	leds = 0;
-      //P5OUT = leds << 4;
+      print_cleancycle();
+      for (i=0; i<5; i++)
+	print_line();
     }
 }
 

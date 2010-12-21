@@ -1,5 +1,6 @@
 #include "device.h"
 #include "stepper.h"
+#include "print.h"
 #include <signal.h>
 
 #define EN (1<<0)
@@ -22,7 +23,7 @@ uint8_t xstate;
 
 void stepper_init()
 {
-  carriagepos = 0;
+  carriagepos = 1000;
   xstate = 0;
 
   P1DIR = EN | CONTROL | HF | DIR | CLOCK | nRESET;
@@ -48,18 +49,24 @@ void stepper_init()
 
 void stepper_xhome()
 {
-  stepper_setxvelocity(4000, CARRIAGE_RIGHT);
-  while ( !stepper_ishome() );
+  volatile uint8_t i = 0;
+  //  stepper_setxvelocity(SPEED_SLOW, CARRIAGE_RIGHT);
+  stepper_setxvelocity(SPEED_SLOW, CARRIAGE_RIGHT);
+  while ( !stepper_ishome() )
+    i++;
+  while (!(P6IN & (1<<5)))
+    i++;
+
   stepper_setxvelocity(0, 0);
   carriagepos = 0;
 }
 
-void stepper_carriagepos(uint16_t newpos)
+void stepper_carriagepos(uint16_t newpos, uint16_t speed)
 {
   if (newpos > carriagepos)
-    stepper_setxvelocity(1000, CARRIAGE_LEFT);
+    stepper_setxvelocity(speed, CARRIAGE_LEFT);
   if (newpos < carriagepos)
-    stepper_setxvelocity(1000, CARRIAGE_RIGHT);
+    stepper_setxvelocity(speed, CARRIAGE_RIGHT);
   
   while (carriagepos != newpos);
   stepper_setxvelocity(0,0);
@@ -100,6 +107,8 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
       carriagepos--;
       break;
     }
+
+    print_process();
   TACTL &= ~TAIFG;
 }
 
