@@ -40,19 +40,22 @@ int main( void )
   for (i=0;i<K_NOZZLES;i++)	/* Fire all nozzles */
     bk_data[i] = 1;
 
-  stepper_xhome();
+  //  stepper_xhome();
 
-  /* while (1) */
-  /*   { */
-  /*     stepper_carriagepos(1000, 1000); */
-  /*     stepper_carriagepos(500, 1000); */
-  /*   } */
+  while (1)
+    {
+      for (i=0; i<5000; i++);
+      stepper_xstep(PAGE_FORWARDS);
+    }
 
   while (1)
     {
       print_cleancycle();
       for (i=0; i<5; i++)
-	print_line();
+	{
+	  print_line();
+	  stepper_ystep(PAGE_FORWARDS);
+	}
     }
 }
 
@@ -85,7 +88,8 @@ void init(void)
   wavegen_init();
   printhead_init();
   stepper_init();
-  stepper_enable(1);
+  stepper_enable(X_MOTOR);
+  stepper_enable(Y_MOTOR);
   eint();
 }
 

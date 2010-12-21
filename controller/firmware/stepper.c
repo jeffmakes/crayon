@@ -9,11 +9,6 @@
 #define DIR (1<<3)
 #define CLOCK (1<<4)
 #define nRESET (1<<5)
-#define X_MOTOR 1
-#define Y_MOTOR 0
-#define CARRIAGE_LEFT 1
-#define CARRIAGE_RIGHT 0
-#define STOPPED 3
 
 volatile uint16_t carriagepos;
 uint8_t xstate;
@@ -27,7 +22,8 @@ void stepper_init()
   xstate = 0;
 
   P1DIR = EN | CONTROL | HF | DIR | CLOCK | nRESET;
-  P2DIR = EN | CONTROL | HF | DIR | nRESET;
+  //  P2DIR = EN | CONTROL | HF | DIR | nRESET;
+  P2DIR = EN | CONTROL | HF | DIR | nRESET | CLOCK;
   P1OUT = HF;   			/* Fast decay, half step */
   P2OUT = HF;
   
@@ -39,8 +35,8 @@ void stepper_init()
 
   TACCR0 = 40000;		/* 50Hz to start with... */
   TACCTL0 = OUTMOD_TOGGLE;	/* Toggle TA0 (P2.7) with TA overflow (clocks X stepper)*/
-  P2SEL |= (1<<7);
-  P2DIR |= (1<<7);
+  //  P2SEL |= (1<<7);
+  //  P2DIR |= (1<<7);
 
   P6DIR &= ~(1<<5);
   P6REN |= (1<<5);		/* Enable pull up resistor on the home switch */
@@ -112,55 +108,52 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
   TACTL &= ~TAIFG;
 }
 
-void stepper_setdir(uint8_t motor, uint8_t direction)
+void stepper_ystep( uint8_t direction)
 {
-  if (motor == Y_MOTOR)
+  volatile uint8_t count;
+  if (direction)
     {
-      if (direction)
-	P1OUT |= DIR;
-      else
-	P1OUT &= ~DIR;
+      P1OUT |= DIR;
+      P1OUT |= CLOCK;
+      for (count = 0; count < 5; count++);
+      P1OUT &= ~CLOCK;
+    }
+  else
+    {
+      P1OUT &= ~DIR;
+      P1OUT |= CLOCK;
+      for (count = 0; count < 5; count++);
+      P1OUT &= ~CLOCK;
     }
 }
 
-void stepper_step(uint8_t motor, uint8_t direction)
+void stepper_xstep( uint8_t direction)
 {
   volatile uint8_t count;
-  if (motor == 0)
+  if (direction)
     {
-      if (direction)
-	{
-	  P1OUT |= DIR;
-	  P1OUT |= CLOCK;
-	  for (count = 0; count < 5; count++);
-	  P1OUT &= ~CLOCK;
-	}
-      else
-	{
-	  P1OUT &= ~DIR;
-	  P1OUT |= CLOCK;
-	  for (count = 0; count < 5; count++);
-	  P1OUT &= ~CLOCK;
-	}
+      P2OUT |= DIR;
+      P2OUT |= CLOCK;
+      for (count = 0; count < 5; count++);
+      P2OUT &= ~CLOCK;
     }
-  else if (motor == 1)
+  else
     {
-      if (direction)
-	{
-	  P2OUT |= DIR;
-	  P2OUT |= CLOCK;
-	  for (count = 0; count < 5; count++);
-	  P2OUT &= ~CLOCK;
-	}
-      else
-	{
-	  P2OUT &= ~DIR;
-	  P2OUT |= CLOCK;
-	  for (count = 0; count < 5; count++);
-	  P2OUT &= ~CLOCK;
-	}
+      P2OUT &= ~DIR;
+      P2OUT |= CLOCK;
+      for (count = 0; count < 5; count++);
+      P2OUT &= ~CLOCK;
     }
 }
+
+
+
+
+
+
+
+
+
 
 void stepper_enable(uint8_t motor)
 {
