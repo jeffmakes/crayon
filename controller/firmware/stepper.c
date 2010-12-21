@@ -92,7 +92,17 @@ void stepper_setxvelocity(uint16_t interval, uint8_t direction)
 
 interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
 {
-  switch (xstate)
+    static uint8_t level = 0;
+    level != level;
+    if (level) {
+	/* 
+	 * interrupt fires on every transition, resulting in 2 print_process calls
+	 * per step.  This if lets only half pass
+	 */
+	return;  
+    }
+
+    switch (xstate)
     {
     case CARRIAGE_LEFT:
       carriagepos++;
@@ -103,7 +113,7 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
     }
 
     print_process();
-  TACTL &= ~TAIFG;
+    TACTL &= ~TAIFG;
 }
 
 void stepper_ystep( uint8_t direction, uint8_t steps)
