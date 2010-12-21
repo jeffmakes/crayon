@@ -44,13 +44,12 @@ void stepper_init()
 
 void stepper_xhome()
 {
-  volatile uint8_t i = 0;
+  volatile uint16_t i = 0;
+
   stepper_setxvelocity(SPEED_SLOW, CARRIAGE_RIGHT);
   while ( !stepper_ishome() )
     i++;
-  while (!(P6IN & (1<<5)))
-    i++;
-
+ 
   stepper_setxvelocity(0, 0);
   carriagepos = 0;
 }
