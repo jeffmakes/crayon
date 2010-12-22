@@ -22,6 +22,7 @@ f = f.quantize(2)
 count = 0
 img = ""
 b = 0x00
+numbytes = 0
 for y in range(h):
     for x in range(w):
         b = ((b << 1) + f.getpixel((x,y)))& 0xff
@@ -31,6 +32,7 @@ for y in range(h):
             img += "\\x%0x"%(b)
             count = 0
             b = 0x00
+            numbytes = numbytes + 1
 
         
 # compensate for ugly ending
@@ -40,9 +42,11 @@ if count != 0:
     img += "\\x%0x"%(b)
     count == 0
 
+print "#include <stdint.h>\n"
+print "/* Size of image = %s bytes */"%numbytes
 print "uint16_t image_width = %d;"%w 
-print "uint16_t image_width = %d;"%h 
-print "static image_data[] = \"%s\";"%img
+print "uint16_t image_height = %d;"%h 
+print "const uint8_t image_data[] = \"%s\";"%img
 f.show()
 
 
