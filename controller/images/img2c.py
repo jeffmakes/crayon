@@ -15,35 +15,54 @@ w,h = f.size
 f = f.convert("RGB")
 f = f.quantize(2)
 
-# assume all pixels that are > 128 are white, others are black
-count = 0
-img = ""
-b = 0x00
 numbytes = 0
+
+print "#include <stdint.h>\n"
+print "uint16_t image_width = %d;"%w
+print "uint16_t image_height = %d;"%h
+
+ncols = h/8
+if h%8:
+    ncols += 1
+print "const uint8_t image_data[%i][%i] = {" % (w,ncols)
+
 for y in range(h):
+    s = ""
+    count = 0
+    img = ""
+    b = 0x00
+    first = True
+
     for x in range(w):
         b = ((b << 1) + f.getpixel((x,y)))& 0xff
         count +=1 
+
         if count == 8:
             # split up int single byte units for c parsing
-            img += "\\x%0x"%(b)
+            if not first:
+                s += ", "
+            s += "0x%2.2x"%(b)
+
+            first = False
             count = 0
             b = 0x00
             numbytes = numbytes + 1
-
         
-# compensate for ugly ending
-if count != 0:
-    # shift b by the number required
-    b <<= (8-count)
-    img += "\\x%0x"%(b)
-    count == 0
-    numbytes = numbytes + 1
+    # Pad the last byte
+    if count != 0:
+        # shift b by the number required
+        b <<= (8-count)
+        if not first:
+            s += ", "
+        s += "0x%2.2x"%(b)
+        count == 0
+        numbytes = numbytes + 1
 
-print "#include <stdint.h>\n"
-print "/* Size of image = %s bytes */"%numbytes
-print "uint16_t image_width = %d;"%w 
-print "uint16_t image_height = %d;"%h 
-print "const uint8_t image_data[] = \"%s\";"%img
+    if y == h-1:
+        print "\t{%s}" % s
+    else:
+        print "\t{%s}," % s
+
+print "};"
 
 
