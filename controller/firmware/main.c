@@ -36,13 +36,6 @@ int main( void )
   init();
   P5DIR = 0xff;
 
-  while (1)
-    {
-      stepper_bodge_ystep(0, 20);
-      for (i=0; i<200000; i++);
-    }
-
-
   stepper_setxvelocity(0, 0);
 
   for (i=0;i<K_NOZZLES;i++)	/* Fire all nozzles */

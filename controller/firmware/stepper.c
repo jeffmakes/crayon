@@ -169,7 +169,7 @@ void stepper_bodge_ystep(uint8_t direction, uint8_t steps)
 	}
       if (++phase == 4)
 	phase = 0;
-      for (delay = 0; delay<300000; delay++);
+      for (delay = 0; delay<1000; delay++);
     }
 }
 
