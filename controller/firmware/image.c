@@ -14,7 +14,7 @@ void image_select(uint16_t *w, uint16_t *h, volatile uint8_t ** data)
 uint8_t image_getpixel(uint16_t x, uint16_t y)
 {
   uint32_t index;
-  index = (x + (uint_32)y * image_width);
+  index = ((uint32_t)x + (uint32_t)y * (uint32_t)image_width);
   return image_data[ index/8 ] & (1 << (7 - index%8 ));
 }
 

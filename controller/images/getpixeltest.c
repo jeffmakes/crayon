@@ -6,7 +6,7 @@
 uint8_t image_getpixel(uint16_t x, uint16_t y)
 {
   uint32_t index;
-  index = (x + y*image_width);
+  index = (x + (uint16_t)y*(uint16_t)image_width);
   return image_data[ index/8 ] & (1 << (7 - index%8 ));
 }
 
