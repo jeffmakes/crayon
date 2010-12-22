@@ -38,7 +38,7 @@ for y in range(h):
 # compensate for ugly ending
 if count != 0:
     # shift b by the number required
-    b << (8-count)
+    b <<= (8-count)
     img += "\\x%0x"%(b)
     count == 0
 
