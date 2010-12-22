@@ -2,8 +2,6 @@
 from PIL import Image
 import sys
 
-W_LIMIT = 500
-
 if len(sys.argv) != 2:
     print """\nConvert RGB image to 1 bit representation in C
 
@@ -16,8 +14,6 @@ w,h = f.size
 # 2 colours
 f = f.convert("RGB")
 f = f.quantize(2)
-#print f.tostring()
-
 
 # assume all pixels that are > 128 are white, others are black
 count = 0
@@ -48,6 +44,5 @@ print "/* Size of image = %s bytes */"%numbytes
 print "uint16_t image_width = %d;"%w 
 print "uint16_t image_height = %d;"%h 
 print "const uint8_t image_data[] = \"%s\";"%img
-f.show()
 
 
