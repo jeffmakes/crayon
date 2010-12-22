@@ -13,7 +13,7 @@
 /* Default x position for printing (top left, we print left to right) */
 #define PRINT_X_ORIGIN  1500
 /* number of passes necessary to deposit enough wax */
-#define NUM_PASSES 1
+#define NUM_PASSES 10
 /* feed steps */
 #define Y_STEP 5
 
@@ -145,7 +145,7 @@ void print_image(void)
             printstate = PRINT_PRINTING; 
             /* wait for carriage to get there */ 
             stepper_carriagepos(PRINT_X_ORIGIN + w + MARGIN*2 , 1500); 
-            printstate = PRINT_IDLE; 
+            //printstate = PRINT_IDLE; 
         } 
  
         stepper_ystep(PAGE_FORWARDS, Y_STEP); 
@@ -219,7 +219,8 @@ void fire_image(void)
     c = img[pixel_index/8];
     j = pixel_index%8;
 
-    if (c & (0x01 << (7-j))) 
+    /* HACK, ignores pixel colour */
+    if (c & (0x01 << (7-j))  || 1)
       {
 	//bk_data[NOZZLE] = 1;
 	bk_data[40] = 1;
@@ -230,12 +231,11 @@ void fire_image(void)
       } 
     else
       {
-	//bk_data[NOZZLE] = 1;
-	bk_data[40] = 0;
-	bk_data[41] = 0;
-	bk_data[42] = 0;
-	bk_data[43] = 0;
-	bk_data[44] = 0;
+	bk_data[40] = 1;
+	bk_data[41] = 1;
+	bk_data[42] = 1;
+	bk_data[43] = 1;
+	bk_data[44] = 1;
       } 
 
    
