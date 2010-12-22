@@ -8,6 +8,8 @@ if len(sys.argv) != 2:
 Usage: img2c.py <image>\n\n"""
     exit()
 
+header = open("image_data.h", "w")
+c_file = open("image_data.c", "w")
 
 f = Image.open(sys.argv[1])
 w,h = f.size
@@ -16,15 +18,26 @@ f = f.convert("RGB")
 f = f.quantize(2)
 
 numbytes = 0
-
-print "#include <stdint.h>\n"
-print "uint16_t image_width = %d;"%w
-print "uint16_t image_height = %d;"%h
-
 ncols = h/8
 if h%8:
     ncols += 1
-print "const uint8_t image_data[%i][%i] = {" % (w,ncols)
+
+header.write( """#ifndef __IMAGE_DATA_H
+#define __IMAGE_DATA_H
+#include <stdint.h>
+
+extern const uint16_t image_width;
+extern const uint16_t image_height;
+extern const uint8_t image_data[%i][%i];
+
+#endif	/* __IMAGE_DATA_H */
+""" % (w, ncols) )
+
+c_file.write( """const uint16_t image_width = %d;
+const uint16_t image_height = %d;
+
+const uint8_t image_data[%i][%i] = {
+""" % (w, h, w, ncols) )
 
 for y in range(h):
     s = ""
@@ -59,10 +72,13 @@ for y in range(h):
         numbytes = numbytes + 1
 
     if y == h-1:
-        print "\t{%s}" % s
+        c_file.write("\t{%s}\n" % s )
     else:
-        print "\t{%s}," % s
+        c_file.write( "\t{%s},\n" % s )
 
-print "};"
+c_file.write( "};\n" )
+c_file.close()
+header.close()
+
 
 
