@@ -28,57 +28,55 @@ header.write( """#ifndef __IMAGE_DATA_H
 
 extern const uint16_t image_width;
 extern const uint16_t image_height;
-extern const uint8_t image_data[%i][%i];
+extern const uint8_t image_data[];
 
 #endif	/* __IMAGE_DATA_H */
-""" % (w, ncols) )
+""" )
 
 c_file.write( """const uint16_t image_width = %d;
 const uint16_t image_height = %d;
 
-const uint8_t image_data[%i][%i] = {
-""" % (w, h, w, ncols) )
+const uint8_t image_data[] = {
+""" % (w, h) )
+
+def rle_entry_out( f, length, val ):
+    assert length < 128
+    b = val << 7
+    b |= length
+    c_file.write( "0x%2.2x, " % b )
 
 for y in range(h):
-    s = ""
-    count = 0
-    img = ""
-    b = 0x00
-    first = True
+    runval = None
+    runlength = 0
 
     for x in range(w):
-        b = ((b << 1) + f.getpixel((x,y)))& 0xff
-        count +=1 
+        pixel = f.getpixel((x,y)) & 1
 
-        if count == 8:
-            # split up int single byte units for c parsing
-            if not first:
-                s += ", "
-            s += "0x%2.2x"%(b)
+        if pixel == runval:
+            runlength += 1
 
-            first = False
-            count = 0
-            b = 0x00
-            numbytes = numbytes + 1
-        
-    # Pad the last byte
-    if count != 0:
-        # shift b by the number required
-        b <<= (8-count)
-        if not first:
-            s += ", "
-        s += "0x%2.2x"%(b)
-        count == 0
-        numbytes = numbytes + 1
+            if runlength == 127:
+                "Saturated this entry -- move on"
+                rle_entry_out( c_file, runlength, runval )
+                runlength = 0 
 
-    if y == h-1:
-        c_file.write("\t{%s}\n" % s )
-    else:
-        c_file.write( "\t{%s},\n" % s )
+        elif runval != None:
+            "Change in value..."
+            rle_entry_out( c_file, runlength, runval )
+            runlength = 1
+
+        runval = pixel
+
+    if runlength:
+        "Output the remainder of this row"
+        rle_entry_out( c_file, runlength, runval )
+
+        runlength = 0
+
+    c_file.write("\n");
 
 c_file.write( "};\n" )
 c_file.close()
 header.close()
-
 
 
