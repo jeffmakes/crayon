@@ -2,6 +2,7 @@
 #define __STEPPER_H
 
 #define SPEED_SLOW 4000
+#define SPEED_CLEAN 8000
 #define SPEED_NORMAL 1000
 
 #define X_MOTOR 1

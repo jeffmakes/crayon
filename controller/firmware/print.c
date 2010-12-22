@@ -15,7 +15,7 @@
 /* number of passes necessary to deposit enough wax */
 #define NUM_PASSES 1
 /* feed steps */
-#define Y_STEP 10
+#define Y_STEP 5
 
 /* one nozzle to print them all*/
 #define NOZZLE 0
@@ -72,9 +72,9 @@ void print_process()
 void print_cleancycle()
 {
     printstate = PRINT_IDLE;
-    stepper_carriagepos(250, 1500);
-    stepper_carriagepos(5, SPEED_SLOW);
-    stepper_carriagepos(250, SPEED_SLOW);
+    stepper_carriagepos(600, 1500);
+    stepper_carriagepos(5, SPEED_CLEAN);
+    stepper_carriagepos(600, SPEED_CLEAN);
 }
 
 /* line with all nozzles blazing */
@@ -99,24 +99,30 @@ void print_line()
  * 
  */
 void print_nozzle_test(void) {
-    uint8_t y, sq, z;
-    pixel_index = 0;
-    fptr = &fire_nozzle_test;
-    line_width = TEST_SIZE_X;
-    for (y = 0; y < K_NOZZLES; y++){
-      stepper_bodge_ystep(PAGE_FORWARDS, TEST_SIZE_Y/2*Y_STEP);
-        for (sq = 0; sq < TEST_SIZE_Y/2; sq++){
-            for (z = 0; z < NUM_PASSES; z++){
-                stepper_carriagepos(PRINT_X_ORIGIN, 1500);
-                printstate = PRINT_PRINTING;
-                /* wait for carriage to get there */
-                stepper_carriagepos(PRINT_X_ORIGIN+TEST_SIZE_X+2*MARGIN, SPEED_SLOW);
-		printstate = PRINT_IDLE;
-            }
-	    stepper_bodge_ystep(PAGE_FORWARDS, Y_STEP);
-        }
+  uint8_t y, sq, z;
+  uint8_t sweeps = 0;
+  pixel_index = 0;
+  fptr = &fire_nozzle_test;
+  line_width = TEST_SIZE_X;
+  for (y = 0; y < K_NOZZLES; y++){
+    stepper_bodge_ystep(PAGE_FORWARDS, TEST_SIZE_Y/2*Y_STEP);
+    for (sq = 0; sq < TEST_SIZE_Y/2; sq++){
+      for (z = 0; z < NUM_PASSES; z++){
+	if (++sweeps == 10)
+	  {
+	    sweeps = 0;
+	    print_cleancycle();
+	  }
+	stepper_carriagepos(PRINT_X_ORIGIN, 1500);
+	printstate = PRINT_PRINTING;
+	/* wait for carriage to get there */
+	stepper_carriagepos(PRINT_X_ORIGIN+TEST_SIZE_X+2*MARGIN, SPEED_SLOW);
+	printstate = PRINT_IDLE;
+      }
+      stepper_bodge_ystep(PAGE_FORWARDS, Y_STEP);
     }
-    fptr = NULL;
+  }
+  fptr = NULL;
 }
 
 
