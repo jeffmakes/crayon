@@ -82,8 +82,8 @@ void print_line()
 {
     fptr = &fire_all;
     printstate = PRINT_PRINTING;
-    stepper_carriagepos(PRINT_X_ORIGIN, 3000);
-    stepper_carriagepos(PRINT_X_ORIGIN + 5*MARGIN, 3000);
+    stepper_carriagepos(PRINT_X_ORIGIN, 6000);
+    stepper_carriagepos(PRINT_X_ORIGIN + 5*MARGIN, 6000);
     printstate = PRINT_IDLE;
     fptr = NULL;
 }
