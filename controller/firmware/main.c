@@ -38,10 +38,10 @@ int main( void )
 
   stepper_setxvelocity(0, 0);
 
-  for (i=0;i<K_NOZZLES;i++)	/* Fire all nozzles */
-    bk_data[i] = 1;
-
   stepper_xhome();
+  print_image();
+
+  while(1);
 
   while (1)
     {
@@ -51,7 +51,6 @@ int main( void )
 	  //	  print_nozzle_test();
       //	  print_line();
 	  //	}
-      print_image();
     }
 }
 

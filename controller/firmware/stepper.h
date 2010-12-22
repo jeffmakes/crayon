@@ -4,6 +4,7 @@
 #define SPEED_SLOW 4000
 #define SPEED_CLEAN 8000
 #define SPEED_NORMAL 1000
+#define SPEED_PRINT 1500
 
 #define X_MOTOR 1
 #define Y_MOTOR 0
@@ -20,10 +21,11 @@ void stepper_init();
 void stepper_enable(uint8_t motor);
 void stepper_disable(uint8_t motor);
 void stepper_setxvelocity(uint16_t speed, uint8_t direction);
-void stepper_carriagepos(uint16_t newpos, uint16_t speed);
-void stepper_ystep( uint8_t direction, uint8_t steps);
+void stepper_moveXto(uint16_t newpos, uint16_t speed);
+void stepper_Ystep( uint8_t direction, uint8_t steps);
+
 void stepper_xhome();
-uint16_t stepper_getpos();
+uint16_t stepper_getXpos();
 
 
 

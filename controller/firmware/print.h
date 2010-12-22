@@ -1,13 +1,13 @@
 #ifndef __PRINT_H
 #define __PRINT_H
 
-typedef enum{PRINT_IDLE = 0, PRINT_PRINTING} printstate_t;
+typedef enum{PRINT_IDLE = 0, PRINT_PRINTING, PRINT_FINISHED} printstate_t;
 
 extern volatile printstate_t printstate;
 
 void print_cleancycle();
 
 void print_init();
-void print_process();
+void  print_nextpixel();
 void print_line();
 #endif

@@ -9,86 +9,92 @@
 #define TEST_SIZE_X 150
 #define TEST_SIZE_Y 10
 /* Open space on the side of images */
-#define MARGIN 100
+#define MARGIN 500
 /* Default x position for printing (top left, we print left to right) */
 #define PRINT_X_ORIGIN  1500
 /* number of passes necessary to deposit enough wax */
 #define NUM_PASSES 10
 /* feed steps */
-#define Y_STEP 5
+#define Y_STEP 1
 
-/* one nozzle to print them all*/
-#define NOZZLE 0
+#define STARTNOZZLE 40
+#define ENDNOZZLE 45
 
 volatile printstate_t printstate;
-/* for bitmap access, mostly */
-volatile uint16_t pixel_index = 0;
-/* width in pixels of current line*/
-volatile uint16_t line_width = 0;
+
 /* nozzle fire function call */
 void (*fptr)(void) = NULL;
 
 volatile uint8_t * img = NULL;
-
-void fire_all(void);
-void fire_image(void);
-void fire_nozzle_test(void);
-
-
-/*
- * Test if we're in margins
- */
-uint8_t in_margins(void)
-{
-  //    if ((stepper_getpos() - PRINT_X_ORIGIN < MARGIN) || 
-  //	(stepper_getpos() - (PRINT_X_ORIGIN + line_width+MARGIN) >= 0)) {
-  
-  if ( (carriagepos < (PRINT_X_ORIGIN + MARGIN))
-       || (carriagepos > (PRINT_X_ORIGIN + MARGIN + line_width + MARGIN)) )
-    return 1;
-  else
-    return 0;
-}
+volatile uint16_t x, y;
 
 void print_init()
 {
-    printstate = PRINT_IDLE;
-    fptr    = NULL;
+  uint8_t i = 0;
+  
+  for (i = 0; i<K_NOZZLES; i++)
+    bk_data[i] = 0;
+  printstate = PRINT_IDLE;
+  fptr    = NULL;
+  x = 0;
+  y = 0;
+    
 }
 
 /* Called by stepper interrupt */
-void print_process()
+void print_nextpixel()
 {
-    /* only do this if fptr is defined */
-    if ((printstate == PRINT_PRINTING) && (fptr))
-        {
-            /* load */
-            fptr();
-            /* fire */
-            printhead_period();
-        }
+  uint8_t nozzle;
+
+  if (printstate == PRINT_PRINTING)
+    {  
+      x = stepper_getXpos();
+      for (nozzle = STARTNOZZLE; nozzle < ENDNOZZLE; nozzle++)
+	if (  image_getpixel(x, y) )
+	  bk_data[nozzle] = 1;
+	else
+	  bk_data[nozzle] = 0;
+    
+      printhead_period();		/* fire the nozzles */
+    }
+}
+
+void print_image()
+{
+  printstate = PRINT_IDLE;
+  stepper_moveXto(PRINT_X_ORIGIN, SPEED_PRINT);
+  stepper_moveXto(PRINT_X_ORIGIN + MARGIN, SPEED_PRINT);
+
+  while (printstate != PRINT_FINISHED)
+    {
+      printstate = PRINT_PRINTING;
+      stepper_moveXto(PRINT_X_ORIGIN + MARGIN + image_width, SPEED_PRINT); /* print right */
+
+      printstate = PRINT_IDLE;
+      stepper_moveXto(PRINT_X_ORIGIN + MARGIN + image_width + MARGIN, SPEED_PRINT); /* overshoot into margin */
+      stepper_moveXto(PRINT_X_ORIGIN + MARGIN + image_width, SPEED_PRINT);
+
+      printstate = PRINT_PRINTING;
+      stepper_moveXto(PRINT_X_ORIGIN + MARGIN, SPEED_PRINT); /* print left */
+
+      printstate = PRINT_IDLE;
+      stepper_moveXto(PRINT_X_ORIGIN, SPEED_PRINT); /* undershoot into margin */
+      stepper_moveXto(PRINT_X_ORIGIN + MARGIN, SPEED_PRINT);
+
+      if (++y == image_height)
+	printstate = PRINT_FINISHED;
+      else
+	stepper_Ystep(PAGE_FORWARDS, Y_STEP); /* advance the page */
+    }
 }
 
 void print_cleancycle()
 {
     printstate = PRINT_IDLE;
-    stepper_carriagepos(600, 1500);
-    stepper_carriagepos(5, SPEED_CLEAN);
-    stepper_carriagepos(600, SPEED_CLEAN);
+    stepper_moveXto(600, 1500);
+    stepper_moveXto(5, SPEED_CLEAN);
+    stepper_moveXto(600, SPEED_CLEAN);
 }
-
-/* line with all nozzles blazing */
-void print_line()
-{
-    fptr = &fire_all;
-    printstate = PRINT_PRINTING;
-    stepper_carriagepos(PRINT_X_ORIGIN, 6000);
-    stepper_carriagepos(PRINT_X_ORIGIN + 5*MARGIN, 6000);
-    printstate = PRINT_IDLE;
-    fptr = NULL;
-}
-
-
 
 /*
  * Print (x,y) = 1 x.5 mm squares using individual nozzles, with
@@ -98,147 +104,145 @@ void print_line()
  * TODO Tricky to reset the firing function if this function is interrupted
  * 
  */
-void print_nozzle_test(void) {
-  uint8_t y, sq, z;
-  uint8_t sweeps = 0;
-  pixel_index = 0;
-  fptr = &fire_nozzle_test;
-  line_width = TEST_SIZE_X;
-  for (y = 0; y < K_NOZZLES; y++){
-    stepper_ystep(PAGE_FORWARDS, TEST_SIZE_Y/2*Y_STEP);
-    for (sq = 0; sq < TEST_SIZE_Y/2; sq++){
-      for (z = 0; z < NUM_PASSES; z++){
-	if (++sweeps == 10)
-	  {
-	    sweeps = 0;
-	    print_cleancycle();
-	  }
-	stepper_carriagepos(PRINT_X_ORIGIN, 1500);
-	printstate = PRINT_PRINTING;
-	/* wait for carriage to get there */
-	stepper_carriagepos(PRINT_X_ORIGIN+TEST_SIZE_X+2*MARGIN, SPEED_SLOW);
-	printstate = PRINT_IDLE;
-      }
-      stepper_ystep(PAGE_FORWARDS, Y_STEP);
-    }
-  }
-  fptr = NULL;
-}
+/* void print_nozzle_test(void) { */
+/*   uint8_t y, sq, z; */
+/*   uint8_t sweeps = 0; */
+/*   pixel_index = 0; */
+/*   fptr = &fire_nozzle_test; */
+/*   line_width = TEST_SIZE_X; */
+/*   for (y = 0; y < K_NOZZLES; y++){ */
+/*     stepper_Ystep(PAGE_FORWARDS, TEST_SIZE_Y/2*Y_STEP); */
+/*     for (sq = 0; sq < TEST_SIZE_Y/2; sq++){ */
+/*       for (z = 0; z < NUM_PASSES; z++){ */
+/* 	if (++sweeps == 10) */
+/* 	  { */
+/* 	    sweeps = 0; */
+/* 	    print_cleancycle(); */
+/* 	  } */
+/* 	stepper_moveXto(PRINT_X_ORIGIN, 1500); */
+/* 	printstate = PRINT_PRINTING; */
+/* 	/\* wait for carriage to get there *\/ */
+/* 	stepper_moveXto(PRINT_X_ORIGIN+TEST_SIZE_X+2*MARGIN, SPEED_SLOW); */
+/* 	printstate = PRINT_IDLE; */
+/*       } */
+/*       stepper_Ystep(PAGE_FORWARDS, Y_STEP); */
+/*     } */
+/*   } */
+/*   fptr = NULL; */
+/* } */
 
 
 /* this prints an image */
-void print_image(void)    
-{ 
-    uint16_t w, h, prev, z, y; 
-    fptr = &fire_image; 
+/* void print_image(void)     */
+/* {  */
+/*     uint16_t w, h, prev, z, y;  */
+/*     fptr = &fire_image;  */
 
-    /* select image to be printed - currently only default one */   
-    image_select(&w, &h, &img);
-    line_width = w;
+/*     /\* select image to be printed - currently only default one *\/    */
+/*     image_select(&w, &h, &img); */
+/*     line_width = w; */
 
-    pixel_index = 0; 
-    for (y = 0; y < h; y ++) {
-        prev = pixel_index;
-        for (z = 0; z< NUM_PASSES; z++){ 
-            pixel_index = prev;
-            stepper_carriagepos(PRINT_X_ORIGIN, 1500); 
-            printstate = PRINT_PRINTING; 
-            /* wait for carriage to get there */ 
-            stepper_carriagepos(PRINT_X_ORIGIN + w + MARGIN*2 , 1500); 
-            //printstate = PRINT_IDLE; 
-        } 
+/*     pixel_index = 0;  */
+/*     for (y = 0; y < h; y ++) { */
+/*         prev = pixel_index; */
+/*         for (z = 0; z< NUM_PASSES; z++){  */
+/*             pixel_index = prev; */
+/*             stepper_moveXto(PRINT_X_ORIGIN, 1500);  */
+/*             printstate = PRINT_PRINTING;  */
+/*             /\* wait for carriage to get there *\/  */
+/*             stepper_moveXto(PRINT_X_ORIGIN + w + MARGIN*2 , 1500);  */
+/*             //printstate = PRINT_IDLE;  */
+/*         }  */
  
-        stepper_ystep(PAGE_FORWARDS, Y_STEP); 
-    }
-    fptr = NULL; 
-} 
+/*         stepper_Ystep(PAGE_FORWARDS, Y_STEP);  */
+/*     } */
+/*     fptr = NULL;  */
+/* }  */
 
 
 
-/*************************************************************
- * set per step fire action here, head movement controlled above 
- * 
- * Functions are called by the stepper ISR
- */
+/* /\************************************************************* */
+/*  * set per step fire action here, head movement controlled above  */
+/*  *  */
+/*  * Functions are called by the stepper ISR */
+/*  *\/ */
 
-/* Fire all nozzles */
-void fire_all(void)
-{
-    uint8_t i = 0;
-    /* load next pixel */
-    for (i=0;i<K_NOZZLES;i++) 
-        bk_data[i] = 1;
-}
+/* /\* Fire all nozzles *\/ */
+/* void fire_all(void) */
+/* { */
+/*     uint8_t i = 0; */
+/*     /\* load next pixel *\/ */
+/*     for (i=0;i<K_NOZZLES;i++)  */
+/*         bk_data[i] = 1; */
+/* } */
 
-/*    
- *    Prints nozzle test pattern
- */
-void fire_nozzle_test(void)
-{
-    static uint8_t noz;
-    uint8_t i = 0;
+/* /\*     */
+/*  *    Prints nozzle test pattern */
+/*  *\/ */
+/* void fire_nozzle_test(void) */
+/* { */
+/*     static uint8_t noz; */
+/*     uint8_t i = 0; */
 
 
-    if (in_margins()) {
-    	return;
-    }
+/*     if (in_margins()) { */
+/*     	return; */
+/*     } */
 
-    /* paranoid clearing of bk_data */
-    for (i=0;i<K_NOZZLES;i++) 
-        bk_data[i] = 0;
+/*     /\* paranoid clearing of bk_data *\/ */
+/*     for (i=0;i<K_NOZZLES;i++)  */
+/*         bk_data[i] = 0; */
     
-    pixel_index ++;
-    if (pixel_index >= TEST_SIZE_X*NUM_PASSES){
-        pixel_index = 0;
-        noz ++;
-        noz%=K_NOZZLES;
-    }
-    bk_data[noz] = 1;
-}
+/*     pixel_index ++; */
+/*     if (pixel_index >= TEST_SIZE_X*NUM_PASSES){ */
+/*         pixel_index = 0; */
+/*         noz ++; */
+/*         noz%=K_NOZZLES; */
+/*     } */
+/*     bk_data[noz] = 1; */
+/* } */
 
 
-/* Print currently selected image */
-void fire_image(void)
-{
-    /* the byte we're currently printing */
-    uint8_t c; 
-    /* the bit in the byte we want */
-    uint8_t j; 
+/* /\* Print currently selected image *\/ */
+/* void fire_image(void) */
+/* { */
+/*     /\* the byte we're currently printing *\/ */
+/*     uint8_t c;  */
+/*     /\* the bit in the byte we want *\/ */
+/*     uint8_t j;  */
 
-    uint8_t i;
+/*     uint8_t i; */
 
-    if (in_margins()) {
-	return;
-    }
+/*     if (in_margins()) { */
+/* 	return; */
+/*     } */
 
-    /* all nozzles off everything */
-    for ( i=0;i<K_NOZZLES;i++) 
-      bk_data[i] = 0;
+/*     /\* all nozzles off everything *\/ */
+/*     //    for ( i=0;i<K_NOZZLES; */
+/*     //bk_data[i] = 0; */
 
-    /* just get next bit from image data, load it, print it */
-    c = img[pixel_index/8];
-    j = pixel_index%8;
+/*     /\* just get next bit from image data, load it, print it *\/ */
+/*     c = img[pixel_index/8]; */
+/*     j = pixel_index%8; */
 
-    /* HACK, ignores pixel colour */
-    if (c & (0x01 << (7-j))  || 1)
-      {
-	//bk_data[NOZZLE] = 1;
-	bk_data[40] = 1;
-	bk_data[41] = 1;
-	bk_data[42] = 1;
-	bk_data[43] = 1;
-	bk_data[44] = 1;
-      } 
-    else
-      {
-	bk_data[40] = 1;
-	bk_data[41] = 1;
-	bk_data[42] = 1;
-	bk_data[43] = 1;
-	bk_data[44] = 1;
-      } 
+/*     if (c & (0x01 << (7-j))) */
+/*       { */
+/* 	bk_data[40] = 1; */
+/* 	bk_data[41] = 1; */
+/* 	bk_data[42] = 1; */
+/* 	bk_data[43] = 1; */
+/* 	bk_data[44] = 1; */
+/*       }  */
+/*     else */
+/*       { */
+/* 	bk_data[40] = 0; */
+/* 	bk_data[41] = 0; */
+/* 	bk_data[42] = 0; */
+/* 	bk_data[43] = 0; */
+/* 	bk_data[44] = 0; */
+/*       }  */
 
    
-    /* else fire blanks */
-    pixel_index ++;
-}
+/*     /\* else fire blanks *\/ */
+/*     pixel_index ++; */
+/* } */

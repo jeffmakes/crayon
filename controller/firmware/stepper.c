@@ -58,7 +58,7 @@ void stepper_xhome()
   carriagepos = 0;
 }
 
-void stepper_carriagepos(uint16_t newpos, uint16_t speed)
+void stepper_moveXto(uint16_t newpos, uint16_t speed)
 {
   if (newpos > carriagepos)
     stepper_setxvelocity(speed, CARRIAGE_LEFT);
@@ -116,7 +116,7 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
       break;
     }
 
-  print_process();
+  print_nextpixel();
   TACTL &= ~TAIFG;
 }
 
@@ -173,7 +173,7 @@ void stepper_bodge_ystep(uint8_t direction, uint8_t steps)
     }
 }
 
-void stepper_ystep( uint8_t direction, uint8_t steps)
+void stepper_Ystep( uint8_t direction, uint8_t steps)
 {
   volatile uint8_t count, i;
   if (direction)
@@ -239,7 +239,8 @@ void stepper_disable(uint8_t motor)
 }
 
 
-uint16_t stepper_getpos() {
-    return carriagepos;
+uint16_t stepper_getXpos() 
+{
+  return carriagepos;
 }
 

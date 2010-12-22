@@ -20,4 +20,13 @@ void image_select(uint16_t *w, uint16_t *h, volatile uint8_t ** data)
     *data = image_data;
 }
 
+/* first pixel is MSB */
+uint8_t image_getpixel(uint16_t x, uint16_t y)
+{
+  uint32_t index;
+  index = (x + y*image_width);
+  return image_data[ index/8 ] & (1 << (7 - index%8 ));
+}
+
+
 
