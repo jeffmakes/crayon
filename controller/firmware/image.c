@@ -15,9 +15,9 @@ static uint8_t image_data[] = "\x80\x0\x0\x0\x0\x0\x0\xb\xff\xff\xff\xff\xff\xff
 
 void image_select(uint16_t *w, uint16_t *h, uint8_t ** data)
 {
-  *w = image_width;
-	*h = image_height;
-	*data = image_data;
+    *w = image_width;
+    *h = image_height;
+    *data = image_data;
 }
 
 

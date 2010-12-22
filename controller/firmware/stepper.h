@@ -21,7 +21,7 @@ void stepper_setxvelocity(uint16_t speed, uint8_t direction);
 void stepper_carriagepos(uint16_t newpos, uint16_t speed);
 void stepper_ystep( uint8_t direction, uint8_t steps);
 void stepper_xhome();
-
+uint16_t stepper_getpos();
 
 
 #endif
