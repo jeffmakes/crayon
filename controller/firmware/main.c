@@ -36,21 +36,26 @@ int main( void )
   init();
   P5DIR = 0xff;
 
+  while (1)
+    {
+      stepper_bodge_ystep(0, 20);
+      for (i=0; i<200000; i++);
+    }
+
+
   stepper_setxvelocity(0, 0);
 
   for (i=0;i<K_NOZZLES;i++)	/* Fire all nozzles */
     bk_data[i] = 1;
 
   stepper_xhome();
-  stepper_disable(0);
-
   while (1)
     {
       print_cleancycle();
       for (i=0; i<5; i++)
 	{
-	  //	  print_nozzle_test();
-	  print_line();
+	  print_nozzle_test();
+	  //print_line();
 	}
     }
 }
@@ -86,6 +91,9 @@ void init(void)
   stepper_init();
   stepper_enable(X_MOTOR);
   stepper_enable(Y_MOTOR);
+
+  stepper_disable(X_MOTOR);
+
   eint();
 }
 

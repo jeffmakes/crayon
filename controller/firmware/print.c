@@ -6,12 +6,12 @@
 #include <stdlib.h>
 
 /* dimensions of the nozzle test pattern*/
-#define TEST_SIZE_X 50
+#define TEST_SIZE_X 150
 #define TEST_SIZE_Y 10
 /* Open space on the side of images */
-#define MARGIN 300
+#define MARGIN 100
 /* Default x position for printing (top left, we print left to right) */
-#define PRINT_X_ORIGIN  500
+#define PRINT_X_ORIGIN  1500
 /* number of passes necessary to deposit enough wax */
 #define NUM_PASSES 1
 /* feed steps */
@@ -82,8 +82,8 @@ void print_line()
 {
     fptr = &fire_all;
     printstate = PRINT_PRINTING;
-    stepper_carriagepos(PRINT_X_ORIGIN, 1500);
-    stepper_carriagepos(PRINT_X_ORIGIN + 5*MARGIN, 1500);
+    stepper_carriagepos(PRINT_X_ORIGIN, 3000);
+    stepper_carriagepos(PRINT_X_ORIGIN + 5*MARGIN, 3000);
     printstate = PRINT_IDLE;
     fptr = NULL;
 }
@@ -104,7 +104,7 @@ void print_nozzle_test(void) {
     fptr = &fire_nozzle_test;
     line_width = TEST_SIZE_X;
     for (y = 0; y < K_NOZZLES; y++){
-        stepper_ystep(PAGE_FORWARDS, TEST_SIZE_Y/2*Y_STEP);
+      stepper_bodge_ystep(PAGE_FORWARDS, TEST_SIZE_Y/2*Y_STEP);
         for (sq = 0; sq < TEST_SIZE_Y/2; sq++){
             for (z = 0; z < NUM_PASSES; z++){
                 stepper_carriagepos(PRINT_X_ORIGIN, 1500);
@@ -113,7 +113,7 @@ void print_nozzle_test(void) {
                 stepper_carriagepos(PRINT_X_ORIGIN+TEST_SIZE_X+2*MARGIN, SPEED_SLOW);
 		printstate = PRINT_IDLE;
             }
-	    stepper_ystep(PAGE_FORWARDS, Y_STEP);
+	    stepper_bodge_ystep(PAGE_FORWARDS, Y_STEP);
         }
     }
     fptr = NULL;
@@ -174,7 +174,7 @@ void fire_nozzle_test(void)
 
 
     if (in_margins()) {
-	return;
+    	return;
     }
 
     /* paranoid clearing of bk_data */

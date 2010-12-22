@@ -43,7 +43,7 @@ void stepper_init()
   P6REN |= (1<<5);		/* Enable pull up resistor on the home switch */
   P6OUT |= (1<<5);		/* Pull _up_ */
 
-  //  bodge_init();
+  bodge_init();
 }
 
 void stepper_xhome()
@@ -122,56 +122,56 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
 
 void bodge_init()
 {
-  //  P1DIR |= (1<<7) | (1<<6);
-  //P3DIR |= (1<<7) | (1<<6);
+  P1DIR |= (1<<7) | (1<<6);
+  P3DIR |= (1<<7) | (1<<6);
 }
 
-/* #define enA(x) do { if (x) P1OUT |= (1<<7); else P1OUT &= ~(1<<7); } while (0) */
-/* #define enB(x) do { if (x) P3OUT |= (1<<7); else P3OUT &= ~(1<<7); } while (0) */
-/* #define phA(x) do { if (x) P1OUT |= (1<<6); else P1OUT &= ~(1<<6); } while (0) */
-/* #define phB(x) do { if (x) P3OUT |= (1<<6); else P3OUT &= ~(1<<6); } while (0) */
-/* #define X 1 */
+#define enA(x) do { if (x) P1OUT |= (1<<7); else P1OUT &= ~(1<<7); } while (0)
+#define enB(x) do { if (x) P3OUT |= (1<<7); else P3OUT &= ~(1<<7); } while (0)
+#define phA(x) do { if (x) P1OUT |= (1<<6); else P1OUT &= ~(1<<6); } while (0)
+#define phB(x) do { if (x) P3OUT |= (1<<6); else P3OUT &= ~(1<<6); } while (0)
+#define X 1
 
-/* void stepper_bodge_ystep(uint8_t direction, uint8_t steps) */
-/* { */
-/*   static uint8_t phase = 0; */
-/*   uint8_t i = 0 ; */
-/*   volatile uint16_t delay = 0; */
-/*   /\* inverted signals EN and PH! *\/ */
-/*   for (i = 0; i < steps; i++) */
-/*     { */
-/*       switch (phase) */
-/* 	{ */
-/* 	case 0: */
-/* 	  enA(0); */
-/* 	  phA(1); */
-/* 	  enB(1); */
-/* 	  phB(X); */
-/* 	  break; */
-/* 	case 1: */
-/* 	  enA(1); */
-/* 	  phA(X); */
-/* 	  enB(0); */
-/* 	  phB(1); */
-/* 	  break; */
-/* 	case 2: */
-/* 	  enA(0); */
-/* 	  phA(0); */
-/* 	  enB(1); */
-/* 	  phB(X); */
-/* 	  break; */
-/* 	case 3:			 */
-/* 	  enA(1); */
-/* 	  phA(X); */
-/* 	  enB(0); */
-/* 	  phB(0); */
-/* 	  break; */
-/* 	} */
-/*       if (++phase == 4) */
-/* 	phase = 0; */
-/*       for (delay = 0; delay<600; delay++); */
-/*     } */
-/* } */
+void stepper_bodge_ystep(uint8_t direction, uint8_t steps)
+{
+  static uint8_t phase = 0;
+  uint8_t i = 0 ;
+  volatile uint32_t delay = 0;
+  /* inverted signals EN and PH! */
+  for (i = 0; i < steps; i++)
+    {
+      switch (phase)
+	{
+	case 0:
+	  enA(0);
+	  phA(1);
+	  enB(1);
+	  phB(X);
+	  break;
+	case 1:
+	  enA(1);
+	  phA(X);
+	  enB(0);
+	  phB(1);
+	  break;
+	case 2:
+	  enA(0);
+	  phA(0);
+	  enB(1);
+	  phB(X);
+	  break;
+	case 3:
+	  enA(1);
+	  phA(X);
+	  enB(0);
+	  phB(0);
+	  break;
+	}
+      if (++phase == 4)
+	phase = 0;
+      for (delay = 0; delay<300000; delay++);
+    }
+}
 
 void stepper_ystep( uint8_t direction, uint8_t steps)
 {
@@ -230,8 +230,8 @@ void stepper_disable(uint8_t motor)
     {
       P1OUT &= ~EN;
       P1OUT &= ~nRESET;
-      //      enA(1);
-      //      enB(1);
+      enA(1);
+      enB(1);
     }
   if (motor == 1)		/* X */
     {
