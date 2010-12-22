@@ -39,7 +39,7 @@ void printhead_init()
   ch(0);
   
   for (i=0;i<K_NOZZLES;i++)
-    bk_data[i] = 1;
+    bk_data[i] = 0;
   for (i=0;i<C_NOZZLES + M_NOZZLES + Y_NOZZLES;i++)
     cl_data[i] = 0;
   

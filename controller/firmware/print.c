@@ -40,14 +40,14 @@ void fire_nozzle_test(void);
  */
 uint8_t in_margins(void)
 {
-    if ((stepper_getpos() - PRINT_X_ORIGIN < MARGIN) || 
-	(stepper_getpos() - (PRINT_X_ORIGIN + line_width+MARGIN) >= 0)) {
-	/* we're in the margins */
-	return 1;
-    }
-    else {
-	return 0;
-    }
+  //    if ((stepper_getpos() - PRINT_X_ORIGIN < MARGIN) || 
+  //	(stepper_getpos() - (PRINT_X_ORIGIN + line_width+MARGIN) >= 0)) {
+  
+  if ( (carriagepos < (PRINT_X_ORIGIN + MARGIN))
+       || (carriagepos > (PRINT_X_ORIGIN + MARGIN + line_width + MARGIN)) )
+    return 1;
+  else
+    return 0;
 }
 
 void print_init()
@@ -105,7 +105,7 @@ void print_nozzle_test(void) {
   fptr = &fire_nozzle_test;
   line_width = TEST_SIZE_X;
   for (y = 0; y < K_NOZZLES; y++){
-    stepper_bodge_ystep(PAGE_FORWARDS, TEST_SIZE_Y/2*Y_STEP);
+    stepper_ystep(PAGE_FORWARDS, TEST_SIZE_Y/2*Y_STEP);
     for (sq = 0; sq < TEST_SIZE_Y/2; sq++){
       for (z = 0; z < NUM_PASSES; z++){
 	if (++sweeps == 10)
@@ -119,7 +119,7 @@ void print_nozzle_test(void) {
 	stepper_carriagepos(PRINT_X_ORIGIN+TEST_SIZE_X+2*MARGIN, SPEED_SLOW);
 	printstate = PRINT_IDLE;
       }
-      stepper_bodge_ystep(PAGE_FORWARDS, Y_STEP);
+      stepper_ystep(PAGE_FORWARDS, Y_STEP);
     }
   }
   fptr = NULL;
@@ -213,15 +213,32 @@ void fire_image(void)
 
     /* all nozzles off everything */
     for ( i=0;i<K_NOZZLES;i++) 
-        bk_data[i] = 0;
+      bk_data[i] = 0;
 
     /* just get next bit from image data, load it, print it */
     c = img[pixel_index/8];
     j = pixel_index%8;
 
-    if (c & (0x01 << (7-j))) {
-        bk_data[NOZZLE] = 1;
-    } 
+    if (c & (0x01 << (7-j))) 
+      {
+	//bk_data[NOZZLE] = 1;
+	bk_data[40] = 1;
+	bk_data[41] = 1;
+	bk_data[42] = 1;
+	bk_data[43] = 1;
+	bk_data[44] = 1;
+      } 
+    else
+      {
+	//bk_data[NOZZLE] = 1;
+	bk_data[40] = 0;
+	bk_data[41] = 0;
+	bk_data[42] = 0;
+	bk_data[43] = 0;
+	bk_data[44] = 0;
+      } 
+
+   
     /* else fire blanks */
     pixel_index ++;
 }

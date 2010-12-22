@@ -9,10 +9,11 @@
 #define Y_MOTOR 0
 #define CARRIAGE_LEFT 1
 #define CARRIAGE_RIGHT 0
-#define PAGE_FORWARDS 1
-#define PAGE_BACKWARDS 0
+#define PAGE_FORWARDS 0
+#define PAGE_BACKWARDS 1
 #define STOPPED 3
 
+extern volatile uint16_t carriagepos;
 
 #define stepper_ishome() (P6IN & (1<<5) ? 0 : 1)
 void stepper_init();
@@ -23,6 +24,7 @@ void stepper_carriagepos(uint16_t newpos, uint16_t speed);
 void stepper_ystep( uint8_t direction, uint8_t steps);
 void stepper_xhome();
 uint16_t stepper_getpos();
+
 
 
 #endif
