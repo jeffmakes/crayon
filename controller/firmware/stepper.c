@@ -230,8 +230,6 @@ void stepper_disable(uint8_t motor)
     {
       P1OUT &= ~EN;
       P1OUT &= ~nRESET;
-      enA(1);
-      enB(1);
     }
   if (motor == 1)		/* X */
     {

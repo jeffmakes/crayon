@@ -42,6 +42,7 @@ int main( void )
     bk_data[i] = 1;
 
   stepper_xhome();
+
   while (1)
     {
       print_cleancycle();
@@ -84,8 +85,6 @@ void init(void)
   stepper_init();
   stepper_enable(X_MOTOR);
   stepper_enable(Y_MOTOR);
-
-  stepper_disable(X_MOTOR);
 
   eint();
 }

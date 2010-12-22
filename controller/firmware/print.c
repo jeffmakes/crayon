@@ -219,7 +219,7 @@ void fire_image(void)
     c = img[pixel_index/8];
     j = pixel_index%8;
 
-    if (c & (0x01 < (7-j))) {
+    if (c & (0x01 << (7-j))) {
         bk_data[NOZZLE] = 1;
     } 
     /* else fire blanks */
