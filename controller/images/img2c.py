@@ -21,23 +21,23 @@ f = f.quantize(2)
 # assume all pixels that are > 128 are white, others are black
 count = 0
 img = ""
-b = 0xff
+b = 0x00
 for y in range(h):
     for x in range(w):
         b = ((b << 1) + f.getpixel((x,y)))& 0xff
         count +=1 
         if count == 8:
             # split up int single byte units for c parsing
-            img += "\\x%x"%(b)
+            img += "\\x%0x"%(b)
             count = 0
-            b = 0xff
+            b = 0x00
 
         
 # compensate for ugly ending
 if count != 0:
     # shift b by the number required
     b << (8-count)
-    img += chr(b)
+    img += "\\x%0x"%(b)
     count == 0
 
 print "uint16_t image_width = %d;"%w 
