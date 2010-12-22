@@ -11,7 +11,7 @@
 /* Open space on the side of images */
 #define MARGIN 300
 /* Default x position for printing (top left, we print left to right) */
-#define PRINT_X_ORIGIN  250
+#define PRINT_X_ORIGIN  500
 /* number of passes necessary to deposit enough wax */
 #define NUM_PASSES 1
 /* feed steps */
@@ -24,7 +24,7 @@ volatile printstate_t printstate;
 /* for bitmap access, mostly */
 volatile uint16_t pixel_index = 0;
 /* width in pixels of current line*/
-volatile uint16_t image_width = 0;
+volatile uint16_t line_width = 0;
 /* nozzle fire function call */
 void (*fptr)(void) = NULL;
 
@@ -41,7 +41,7 @@ void fire_nozzle_test(void);
 uint8_t in_margins(void)
 {
     if ((stepper_getpos() - PRINT_X_ORIGIN < MARGIN) || 
-	(stepper_getpos() - (PRINT_X_ORIGIN + image_width+MARGIN) >= 0)) {
+	(stepper_getpos() - (PRINT_X_ORIGIN + line_width+MARGIN) >= 0)) {
 	/* we're in the margins */
 	return 1;
     }
@@ -83,7 +83,7 @@ void print_line()
     fptr = &fire_all;
     printstate = PRINT_PRINTING;
     stepper_carriagepos(PRINT_X_ORIGIN, 1500);
-    stepper_carriagepos(PRINT_X_ORIGIN + 3*MARGIN, 1500);
+    stepper_carriagepos(PRINT_X_ORIGIN + 5*MARGIN, 1500);
     printstate = PRINT_IDLE;
     fptr = NULL;
 }
@@ -102,7 +102,7 @@ void print_nozzle_test(void) {
     uint8_t y, sq, z;
     pixel_index = 0;
     fptr = &fire_nozzle_test;
-    image_width = TEST_SIZE_X;
+    line_width = TEST_SIZE_X;
     for (y = 0; y < K_NOZZLES; y++){
         stepper_ystep(PAGE_FORWARDS, TEST_SIZE_Y/2*Y_STEP);
         for (sq = 0; sq < TEST_SIZE_Y/2; sq++){
@@ -128,7 +128,7 @@ void print_image(void)
 
     /* select image to be printed - currently only default one */   
     image_select(&w, &h, &img);
-    image_width = w;
+    line_width = w;
 
     pixel_index = 0; 
     for (y = 0; y < h; y ++) {
