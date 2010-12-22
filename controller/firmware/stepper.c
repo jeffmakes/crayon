@@ -40,6 +40,8 @@ void stepper_init()
   P6DIR &= ~(1<<5);
   P6REN |= (1<<5);		/* Enable pull up resistor on the home switch */
   P6OUT |= (1<<5);		/* Pull _up_ */
+
+  bodge_init();
 }
 
 void stepper_xhome()
@@ -102,16 +104,27 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
       break;
     }
 
-    print_process();
+  print_process();
   TACTL &= ~TAIFG;
 }
+void bodge_init()
+{
+  P1DIR |= (1<<7) | (1<<6);
+  P3DIR |= (1<<7) | (1<<6);
+}
+
+#define enA(x) do { if (x) P1OUT |= (1<<7); else P1OUT &= ~(1<<7); } while (0)
+#define enB(x) do { if (x) P3OUT |= (1<<7); else P3OUT &= ~(1<<7); } while (0)
+#define phA(x) do { if (x) P1OUT |= (1<<6); else P1OUT &= ~(1<<6); } while (0)
+#define phB(x) do { if (x) P3OUT |= (1<<6); else P3OUT &= ~(1<<6); } while (0)
+#define X 1
 
 void stepper_bodge_ystep(uint8_t direction, uint8_t steps)
 {
   static uint8_t phase = 0;
   uint8_t i = 0 ;
   volatile uint16_t delay = 0;
-  /* Inverted PH and EN! */
+  /* inverted signals EN and PH! */
   for (i = 0; i < steps; i++)
     {
       switch (phase)
@@ -204,6 +217,8 @@ void stepper_disable(uint8_t motor)
     {
       P1OUT &= ~EN;
       P1OUT &= ~nRESET;
+      enA(1);
+      enB(1);
     }
   if (motor == 1)
     {

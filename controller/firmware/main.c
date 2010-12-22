@@ -41,13 +41,15 @@ int main( void )
     bk_data[i] = 1;
 
   stepper_xhome();
+  stepper_disable(0);
 
   while (1)
     {
       print_cleancycle();
       for (i=0; i<5; i++)
 	{
-	  print_nozzle_test();
+	  //	  print_nozzle_test();
+	  print_line();
 	}
     }
 }
