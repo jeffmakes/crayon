@@ -106,6 +106,47 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
   TACTL &= ~TAIFG;
 }
 
+void stepper_bodge_ystep(uint8_t direction, uint8_t steps)
+{
+  static uint8_t phase = 0;
+  uint8_t i = 0 ;
+  volatile uint16_t delay = 0;
+  /* Inverted PH and EN! */
+  for (i = 0; i < steps; i++)
+    {
+      switch (phase)
+	{
+	case 0:
+	  enA(0);
+	  phA(1);
+	  enB(1);
+	  phB(X);
+	  break;
+	case 1:
+	  enA(1);
+	  phA(X);
+	  enB(0);
+	  phB(1);
+	  break;
+	case 2:
+	  enA(0);
+	  phA(0);
+	  enB(1);
+	  phB(X);
+	  break;
+	case 3:			
+	  enA(1);
+	  phA(X);
+	  enB(0);
+	  phB(0);
+	  break;
+	}
+      if (++phase == 4)
+	phase = 0;
+      for (delay = 0; delay<600; delay++);
+    }
+}
+
 void stepper_ystep( uint8_t direction, uint8_t steps)
 {
   volatile uint8_t count, i;
