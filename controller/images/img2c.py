@@ -38,6 +38,7 @@ if count != 0:
     b <<= (8-count)
     img += "\\x%0x"%(b)
     count == 0
+    numbytes = numbytes + 1
 
 print "#include <stdint.h>\n"
 print "/* Size of image = %s bytes */"%numbytes
