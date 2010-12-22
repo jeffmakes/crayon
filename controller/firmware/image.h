@@ -10,7 +10,7 @@
  * - pointer to image data
  */
 
-void image_select(uint16_t *w, uint16_t *h, uint8_t ** data);
+void image_select(uint16_t *w, uint16_t *h, volatile uint8_t ** data);
 
 
 #endif

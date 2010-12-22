@@ -2,6 +2,7 @@
 #include "stepper.h"
 #include "wavegen.h"
 #include "printhead.h"
+#include "print.h"
 #include <signal.h>
 #include "/usr/msp430/include/msp430/svs.h"
 

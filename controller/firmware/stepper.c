@@ -16,6 +16,8 @@ uint8_t xstate;
 /* Motor 0 is the right-hand driver, black connector. */
 /* Motor 1 is the left-hand driver, red connector. */
 
+void bodge_init();
+
 void stepper_init()
 {
   carriagepos = 1000;
@@ -41,7 +43,7 @@ void stepper_init()
   P6REN |= (1<<5);		/* Enable pull up resistor on the home switch */
   P6OUT |= (1<<5);		/* Pull _up_ */
 
-  bodge_init();
+  //  bodge_init();
 }
 
 void stepper_xhome()
@@ -95,7 +97,7 @@ void stepper_setxvelocity(uint16_t interval, uint8_t direction)
 interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
 {
   static uint8_t level = 0;
-  level != level;
+  level ^= 1;
   if (level) {
     /* 
      * interrupt fires on every transition, resulting in 2 print_process calls
@@ -120,8 +122,8 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
 
 void bodge_init()
 {
-  P1DIR |= (1<<7) | (1<<6);
-  P3DIR |= (1<<7) | (1<<6);
+  //  P1DIR |= (1<<7) | (1<<6);
+  //P3DIR |= (1<<7) | (1<<6);
 }
 
 #define enA(x) do { if (x) P1OUT |= (1<<7); else P1OUT &= ~(1<<7); } while (0)
@@ -224,14 +226,14 @@ void stepper_enable(uint8_t motor)
 
 void stepper_disable(uint8_t motor)
 {
-  if (motor == 0)
+  if (motor == 0)		/* Y */
     {
       P1OUT &= ~EN;
       P1OUT &= ~nRESET;
       enA(1);
       enB(1);
     }
-  if (motor == 1)
+  if (motor == 1)		/* X */
     {
       P2OUT &= ~EN;
       P2OUT &= ~nRESET;
