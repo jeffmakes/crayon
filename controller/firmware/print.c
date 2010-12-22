@@ -45,17 +45,24 @@ void print_init()
 void print_nextpixel()
 {
   uint8_t nozzle;
+  uint16_t currentpos;
 
-  if (printstate == PRINT_PRINTING)
-    {  
-      x = stepper_getXpos();
-      for (nozzle = STARTNOZZLE; nozzle < ENDNOZZLE; nozzle++)
-	if (  image_getpixel(x, y) )
-	  bk_data[nozzle] = 1;
-	else
-	  bk_data[nozzle] = 0;
-    
-      printhead_period();		/* fire the nozzles */
+  currentpos = stepper_getXpos(); 
+  if ( (currentpos >= PRINT_X_ORIGIN + MARGIN)
+       && (currentpos < PRINT_X_ORIGIN + MARGIN + image_width)) /* If we're within the printing zone... */
+    {
+      x = currentpos - (PRINT_X_ORIGIN + MARGIN);
+      if (printstate == PRINT_PRINTING)
+	{  
+	  for (nozzle = STARTNOZZLE; nozzle < ENDNOZZLE; nozzle++)
+	    if (  image_getpixel(x, y) )
+	      bk_data[nozzle] = 1;
+	    else
+	      bk_data[nozzle] = 0;
+      
+
+	  printhead_period();		/* fire the nozzles */
+	}
     }
 }
 
@@ -65,19 +72,16 @@ void print_image()
   stepper_moveXto(PRINT_X_ORIGIN, SPEED_PRINT);
   stepper_moveXto(PRINT_X_ORIGIN + MARGIN, SPEED_PRINT);
 
+  printstate = PRINT_PRINTING;
   while (printstate != PRINT_FINISHED)
     {
-      printstate = PRINT_PRINTING;
       stepper_moveXto(PRINT_X_ORIGIN + MARGIN + image_width, SPEED_PRINT); /* print right */
 
-      printstate = PRINT_IDLE;
       stepper_moveXto(PRINT_X_ORIGIN + MARGIN + image_width + MARGIN, SPEED_PRINT); /* overshoot into margin */
       stepper_moveXto(PRINT_X_ORIGIN + MARGIN + image_width, SPEED_PRINT);
 
-      printstate = PRINT_PRINTING;
       stepper_moveXto(PRINT_X_ORIGIN + MARGIN, SPEED_PRINT); /* print left */
 
-      printstate = PRINT_IDLE;
       stepper_moveXto(PRINT_X_ORIGIN, SPEED_PRINT); /* undershoot into margin */
       stepper_moveXto(PRINT_X_ORIGIN + MARGIN, SPEED_PRINT);
 
