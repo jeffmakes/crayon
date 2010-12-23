@@ -17,7 +17,7 @@
 /* feed steps */
 #define Y_STEP 1
 
-#define STARTNOZZLE 40
+#define STARTNOZZLE 43
 #define ENDNOZZLE 45
 
 volatile printstate_t printstate;
