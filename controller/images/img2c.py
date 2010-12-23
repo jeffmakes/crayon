@@ -2,14 +2,21 @@
 from PIL import Image
 import sys
 
-if len(sys.argv) != 2:
+if len(sys.argv) < 2 or len(sys.argv) > 3:
     print """\nConvert RGB image to 1 bit representation in C
 
-Usage: img2c.py <image>\n\n"""
+Usage: img2c.py <image> [N_BITS]\n\n"""
     exit()
 
+N_BITS = 8
+if len(sys.argv) == 3:
+    N_BITS = int(sys.argv[2])
+    if N_BITS not in [8,16]:
+        print "N_BITS can only be 8 or 16"
+        exit()
+
 class RLEFiles:
-    def __init__(self, img_fname):
+    def __init__(self, img_fname, nbits):
         self.img = Image.open(img_fname)
         self.w, self.h = self.img.size
         self.img = self.img.convert("RGB")
@@ -23,6 +30,10 @@ class RLEFiles:
         self.row_data = {}
         self.row_offsets = []
 
+        self.nbits = nbits
+        # Maximum runlength
+        self.MAX_RUNLEN = (1<<self.nbits) - 1
+
         self._output_header()
         self._output_c_file()
 
@@ -31,13 +42,14 @@ class RLEFiles:
 #define __IMAGE_DATA_H
 #include <stdint.h>
 
+#define IMAGE_N_BITS %i
 extern const uint16_t image_width;
 extern const uint16_t image_height;
-extern const uint8_t image_data[];
+extern const uint%i_t image_data[];
 const uint16_t row_offsets[%i];
 
 #endif	/* __IMAGE_DATA_H */
-""" % (self.w) )
+""" % (self.nbits, self.nbits, self.w) )
 
     def _output_c_file(self):
         self._output_c_start()
@@ -68,7 +80,7 @@ const uint16_t image_height = %d;
             if pixel == self.runval:
                 self.runlength += 1
 
-                if self.runlength == 127:
+                if self.runlength == self.MAX_RUNLEN:
                     "Saturated this entry -- move on"
                     data += [ self._rle_entry() ]
                     self.runlength = 0 
@@ -101,15 +113,19 @@ const uint16_t image_height = %d;
 
     def _rle_entry(self):
         "Returns the current RLE entry"
-        assert self.runlength < 128
-        b = self.runval << 7
+        assert self.runlength <= self.MAX_RUNLEN
+        b = self.runval << (self.nbits - 1)
         b |= self.runlength
         return b
 
     def _bytes_out(self, bytes):
         for b in bytes:
-            self.c_file.write( "0x%2.2x, " % b )
-        self.n_bytes += len(bytes)
+            if self.nbits == 8:
+                self.c_file.write( "0x%2.2x, " % b )
+            elif self.nbits == 16:
+                self.c_file.write( "0x%4.4x, " % b )
+
+        self.n_bytes += len(bytes) * (self.nbits/8)
 
     def _output_row_offsets(self):
         self.c_file.write( """const uint16_t row_offsets[%i] = { """ % (self.w) )
@@ -121,6 +137,6 @@ const uint16_t image_height = %d;
 
         self.c_file.write( """ };\n""" )
 
-rle = RLEFiles(sys.argv[1])
+rle = RLEFiles(sys.argv[1], N_BITS)
 
 
