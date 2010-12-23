@@ -94,7 +94,7 @@ const uint16_t row_offsets[%i];
 
         for off in self.row_offsets:
             assert off < 0x10000
-            self.c_file.write( "%2.2x, " % off )
+            self.c_file.write( "0x%2.2x, " % off )
             self.n_bytes += 2
 
         self.c_file.write( """ };\n""" )
