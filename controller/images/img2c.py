@@ -44,11 +44,14 @@ extern const uint8_t image_data[];
             self._output_c_row(y)
         self.c_file.write( """};\n""" )
 
+        self._output_row_offsets()
+        print self.n_bytes, "bytes used"
 
     def _output_c_start(self):
         self.c_file.write( """const uint16_t image_width = %d;
 const uint16_t image_height = %d;
-""" % (self.w, self.h) )
+const uint16_t row_offsets[%i];
+""" % (self.w, self.h, self.w) )
 
     def _output_c_row(self, row):
         self.runval = None
@@ -85,6 +88,16 @@ const uint16_t image_height = %d;
         b |= self.runlength
         self.c_file.write( "0x%2.2x, " % b )
         self.n_bytes += 1
+
+    def _output_row_offsets(self):
+        self.c_file.write( """const uint16_t row_offsets[%i] = { """ % (self.w) )
+
+        for off in self.row_offsets:
+            assert off < 0x10000
+            self.c_file.write( "%2.2x, " % off )
+            self.n_bytes += 2
+
+        self.c_file.write( """ };\n""" )
 
 rle = RLEFiles(sys.argv[1])
 
