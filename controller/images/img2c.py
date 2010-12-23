@@ -32,7 +32,7 @@ class RLEFiles:
 
         self.nbits = nbits
         # Maximum runlength
-        self.MAX_RUNLEN = (1<<self.nbits) - 1
+        self.MAX_RUNLEN = (1<<(self.nbits-1)) - 1
 
         self._output_header()
         self._output_c_file()
