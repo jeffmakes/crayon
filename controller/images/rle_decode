@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+from PIL import Image
+import sys
+
+if len(sys.argv) < 2:
+    print "Usage: rle_decode INFILE"
+    exit()
+
+f = open(sys.argv[1])
+
+assert(f.readline() == """#include "image_data.h"\n""")
+assert(f.readline() == """\n""")
+
+width = int((f.readline().split()[-1])[0:-1])
+height = int((f.readline().split()[-1])[0:-1])
+
+assert( f.readline() == "const uint8_t image_data[] = {\n" )
+print "%i x %i" % (width, height)
+
+# Read in the image data
+image_data = []
+l = f.readline()
+while l != "};\n":
+    for v in l.split():
+        assert v[-1] == ","
+
+        s = int(v[0:-1], 16)
+        image_data.append(s)
+
+    l = f.readline()
+
+# print [hex(x) for x in image_data]
+
+l = f.readline()
+assert "row_offsets" in l 
+l = l.split("{")[1]
+l = l.split()[:-1]
+row_offsets = []
+for v in l:
+    assert v[-1] == ","
+    row_offsets.append( int(v[:-1], 16) )
+
+img = Image.new( "RGB", (width, height), (255,0,0) )
+
+row = 0
+for row_offset in row_offsets:
+    x = 0
+    off = 0
+
+    while x < width:
+        ent = image_data[ row_offset + off ]
+        length = ent & 0x7f
+        val = (ent & 0x80) >> 7
+
+
+        while length:
+            if val:
+                img.putpixel( (x, row), (0,0,0) )
+            else:
+                img.putpixel( (x, row), (255,255,255) )
+
+            length -= 1
+            x += 1
+
+        off += 1
+    row += 1
+
+img.show()
+img.save("test.png")
+
