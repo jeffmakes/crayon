@@ -14,8 +14,8 @@ extern uint8_t bk_data[K_NOZZLES];
 extern uint8_t cl_data[C_NOZZLES + M_NOZZLES + Y_NOZZLES];
 //uint8_t greytable[16] = {1,0,0,0,   1,1,0,0,   1,0,0,0,   1,1,1,0};
 
-//uint8_t greytable[16] = {1,1,1,0,   1,1,1,0,   1,1,1,0,   1,1,1,0}; /* definitely more wax, but dusty... */
-const uint8_t greytable[16] = {0,0,1,0,  0,0,0,0,  0,0,0,0,  0,0,0,0};
+uint8_t greytable[16] = {1,1,1,0,   1,1,1,0,   1,1,1,0,   1,1,1,0}; /* definitely more wax, but dusty... */
+//const uint8_t greytable[16] = {0,0,1,0,  0,0,0,0,  0,0,0,0,  0,0,0,0};
 
 //uint8_t greytable[16] = {1,0,0,0,  0,0,1,0,  1,1,0,0,  0,0,0,1};
 

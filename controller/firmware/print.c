@@ -16,6 +16,7 @@
 #define NUM_PASSES 10
 /* feed steps */
 #define Y_STEP 1
+#define Z_LAYERS 4
 
 #define STARTNOZZLE 43
 #define ENDNOZZLE 45
@@ -47,6 +48,7 @@ void print_nextpixel()
   uint8_t nozzle;
   uint16_t currentpos;
   uint8_t pixelwhite;
+  uint8_t zcount;
 
   currentpos = stepper_getXpos(); 
   if ( (currentpos >= PRINT_X_ORIGIN + MARGIN)
@@ -59,6 +61,7 @@ void print_nextpixel()
 	  for (nozzle = STARTNOZZLE; nozzle < ENDNOZZLE; nozzle++)
 	    bk_data[nozzle] = pixelwhite;
 
+	  //	  for (zcount = 0; zcount<Z_LAYERS; zcount++)
 	  printhead_period();		/* fire the nozzles */
 	}
     }
