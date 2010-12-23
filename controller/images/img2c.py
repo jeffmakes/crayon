@@ -19,6 +19,8 @@ class RLEFiles:
         self.header = open("image_data.h", "w")
         self.c_file = open("image_data.c", "w")
         self.n_bytes = 0
+        # Keys are offsets, values are the data
+        self.row_data = {}
         self.row_offsets = []
 
         self._output_header()
@@ -58,7 +60,7 @@ const uint16_t image_height = %d;
     def _output_c_row(self, row):
         self.runval = None
         self.runlength = 0
-        self.row_offsets += [self.n_bytes]
+        data = []
 
         for x in range(self.w):
             pixel = self.img.getpixel((x,row)) & 1
@@ -68,28 +70,46 @@ const uint16_t image_height = %d;
 
                 if self.runlength == 127:
                     "Saturated this entry -- move on"
-                    self._rle_entry_out()
+                    data += [ self._rle_entry() ]
                     self.runlength = 0 
 
             elif self.runval != None:
                 "Change in value..."
-                self._rle_entry_out()
+                data += [ self._rle_entry() ]
                 self.runlength = 1
 
             self.runval = pixel
 
         if self.runlength:
             "Output the remainder of this row"
-            self._rle_entry_out()
+            data += [ self._rle_entry() ]
 
+        # Has there already been a row with this value?
+        for offset, d in self.row_data.iteritems():
+            if d == data:
+                "Identical row already output: point to that"
+                self.row_offsets.append(offset)
+                return
+
+        # No identical rows found.
+        # Add to library
+        self.row_data[self.n_bytes] = data
+
+        self.row_offsets.append(self.n_bytes)
+        self._bytes_out(data)
         self.c_file.write("\n");
 
-    def _rle_entry_out(self):
+    def _rle_entry(self):
+        "Returns the current RLE entry"
         assert self.runlength < 128
         b = self.runval << 7
         b |= self.runlength
-        self.c_file.write( "0x%2.2x, " % b )
-        self.n_bytes += 1
+        return b
+
+    def _bytes_out(self, bytes):
+        for b in bytes:
+            self.c_file.write( "0x%2.2x, " % b )
+        self.n_bytes += len(bytes)
 
     def _output_row_offsets(self):
         self.c_file.write( """const uint16_t row_offsets[%i] = { """ % (self.w) )
