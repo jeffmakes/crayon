@@ -32,9 +32,10 @@ class RLEFiles:
 extern const uint16_t image_width;
 extern const uint16_t image_height;
 extern const uint8_t image_data[];
+const uint16_t row_offsets[%i];
 
 #endif	/* __IMAGE_DATA_H */
-""" )
+""" % (self.w) )
 
     def _output_c_file(self):
         self._output_c_start()
@@ -48,10 +49,11 @@ extern const uint8_t image_data[];
         print self.n_bytes, "bytes used"
 
     def _output_c_start(self):
-        self.c_file.write( """const uint16_t image_width = %d;
+        self.c_file.write( """#include "image_data.h"
+
+const uint16_t image_width = %d;
 const uint16_t image_height = %d;
-const uint16_t row_offsets[%i];
-""" % (self.w, self.h, self.w) )
+""" % (self.w, self.h) )
 
     def _output_c_row(self, row):
         self.runval = None
