@@ -42,8 +42,8 @@ void stepper_init()
   P6DIR &= ~(1<<5);
   P6REN |= (1<<5);		/* Enable pull up resistor on the home switch */
   P6OUT |= (1<<5);		/* Pull _up_ */
-
-  bodge_init();
+  
+  P5DIR |= (1<<3);
 }
 
 void stepper_xhome()
@@ -97,6 +97,8 @@ void stepper_setxvelocity(uint16_t interval, uint8_t direction)
 interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
 {
   static uint8_t level = 0;
+  P5OUT |= (1<<3);
+
   level ^= 1;
   if (level) {
     /* 
@@ -118,6 +120,7 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
 
   print_nextpixel();
   TACTL &= ~TAIFG;
+  P5OUT &= ~(1<<3);
 }
 
 void bodge_init()

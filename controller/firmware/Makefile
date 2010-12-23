@@ -1,5 +1,5 @@
 ARCH=msp430x2618
-CFLAGS := -mmcu=$(ARCH) -g -Wall 
+CFLAGS := -mmcu=$(ARCH) -g -Wall -O3
 #CFLAGS := -mmcu=$(ARCH) -g -Wall -O
 CFLAGS += -mendup-at=main
 LDFLAGS :=

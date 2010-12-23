@@ -40,6 +40,7 @@ int main( void )
 
   stepper_xhome();
   print_image();
+  stepper_xhome();
 
   while(1);
 

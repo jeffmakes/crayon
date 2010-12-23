@@ -13,7 +13,7 @@
 extern uint8_t bk_data[K_NOZZLES];
 extern uint8_t cl_data[C_NOZZLES + M_NOZZLES + Y_NOZZLES];
 //uint8_t greytable[16] = {1,0,0,0,   1,1,0,0,   1,0,0,0,   1,1,1,0};
-uint8_t greytable[16] = {0,0,1,0,  0,0,0,0,  0,0,0,0,  0,0,0,0};
+const uint8_t greytable[16] = {0,0,1,0,  0,0,0,0,  0,0,0,0,  0,0,0,0};
 //uint8_t greytable[16] = {1,0,0,0,  0,0,1,0,  1,1,0,0,  0,0,0,1};
 
 #define nchg(x) do { if (x) P3OUT |= (1<<NCHG); else P3OUT &= ~(1<<NCHG); } while (0)

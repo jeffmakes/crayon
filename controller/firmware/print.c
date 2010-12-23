@@ -46,6 +46,7 @@ void print_nextpixel()
 {
   uint8_t nozzle;
   uint16_t currentpos;
+  uint8_t pixelwhite;
 
   currentpos = stepper_getXpos(); 
   if ( (currentpos >= PRINT_X_ORIGIN + MARGIN)
@@ -54,12 +55,9 @@ void print_nextpixel()
       x = currentpos - (PRINT_X_ORIGIN + MARGIN);
       if (printstate == PRINT_PRINTING)
 	{  
+	  pixelwhite = image_getpixel(x, y);
 	  for (nozzle = STARTNOZZLE; nozzle < ENDNOZZLE; nozzle++)
-	    if (  image_getpixel(x, y) )
-	      bk_data[nozzle] = 1;
-	    else
-	      bk_data[nozzle] = 0;
-      
+	    bk_data[nozzle] = pixelwhite;
 
 	  printhead_period();		/* fire the nozzles */
 	}
@@ -75,15 +73,8 @@ void print_image()
   printstate = PRINT_PRINTING;
   while (printstate != PRINT_FINISHED)
     {
-      stepper_moveXto(PRINT_X_ORIGIN + MARGIN + image_width, SPEED_PRINT); /* print right */
-
-      stepper_moveXto(PRINT_X_ORIGIN + MARGIN + image_width + MARGIN, SPEED_PRINT); /* overshoot into margin */
-      stepper_moveXto(PRINT_X_ORIGIN + MARGIN + image_width, SPEED_PRINT);
-
-      stepper_moveXto(PRINT_X_ORIGIN + MARGIN, SPEED_PRINT); /* print left */
-
+      stepper_moveXto(PRINT_X_ORIGIN + MARGIN + image_width + MARGIN, SPEED_PRINT); /* print right */
       stepper_moveXto(PRINT_X_ORIGIN, SPEED_PRINT); /* undershoot into margin */
-      stepper_moveXto(PRINT_X_ORIGIN + MARGIN, SPEED_PRINT);
 
       if (++y == image_height)
 	printstate = PRINT_FINISHED;
