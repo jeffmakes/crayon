@@ -9,7 +9,7 @@
 #define TEST_SIZE_X 150
 #define TEST_SIZE_Y 10
 /* Open space on the side of images */
-#define MARGIN 500
+#define MARGIN 50
 /* Default x position for printing (top left, we print left to right) */
 #define PRINT_X_ORIGIN  1500
 /* number of passes necessary to deposit enough wax */
