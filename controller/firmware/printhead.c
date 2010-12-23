@@ -43,6 +43,7 @@ void printhead_init()
   for (i=0;i<C_NOZZLES + M_NOZZLES + Y_NOZZLES;i++)
     cl_data[i] = 0;
   
+  P1DIR |= (1<<7);
 }
 
 void printhead_period()
@@ -55,17 +56,22 @@ void printhead_period()
 
   /* Each nozzle receives a two-bit greyscale value, stored in the bk_ and cl_data arrays */
 
+  P1OUT |= (1<<7);
 
   for (nozzle = 0; nozzle < K_NOZZLES; nozzle++) /* high data bits, clocked on both edges of ck */
     {
-      sibk( (bk_data[nozzle] & 2) );
-      sicl( (cl_data[nozzle] & 2) );
+      //sibk( (bk_data[nozzle] & 2) );
+      //sicl( (cl_data[nozzle] & 2) );
+      sibk(0);
+      sicl(0);
+      
       ck_edge();
     }
   for (nozzle = 0; nozzle < K_NOZZLES; nozzle++) /* low data bits, clocked on both edges of ck */
     {
       sibk( (bk_data[nozzle] & 1) );
-      sicl( (cl_data[nozzle] & 1) );
+      //sicl( (cl_data[nozzle] & 1) );
+      sicl(0);
       ck_edge();
     }
   for (i = 0; i<16; i++)	/* grey mapping table. see logbook for the details of how this is calculated */
@@ -77,6 +83,7 @@ void printhead_period()
   
   lat(1);			/* Latch in the data */
   lat(0);
+  P1OUT &= ~(1<<7);
 
   nchg(1);					  /* release nozzle charge maintain */  
   wavegen_drop();		/* droplet */

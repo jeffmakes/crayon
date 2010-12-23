@@ -16,17 +16,16 @@ uint8_t xstate;
 /* Motor 0 is the right-hand driver, black connector. */
 /* Motor 1 is the left-hand driver, red connector. */
 
-void bodge_init();
 
 void stepper_init()
 {
   carriagepos = 1000;
   xstate = 0;
 
-  P1DIR = EN | CONTROL | HF | DIR | CLOCK | nRESET;
-  P2DIR = EN | CONTROL | HF | DIR | nRESET;
-  P1OUT = HF;   			/* Fast decay, half step */
-  P2OUT = HF;
+  P1DIR |= EN | CONTROL | HF | DIR | CLOCK | nRESET;
+  P2DIR |= EN | CONTROL | HF | DIR | nRESET;
+  P1OUT |= HF;   			/* Fast decay, half step */
+  P2OUT |= HF;
   
   TACTL = 
     TASSEL_SMCLK 		/* Clock TA from SMCLK =16MHz */
@@ -123,58 +122,6 @@ interrupt (TIMERA1_VECTOR) stepper_stepinterrupt(void)
   P5OUT &= ~(1<<3);
 }
 
-void bodge_init()
-{
-  P1DIR |= (1<<7) | (1<<6);
-  P3DIR |= (1<<7) | (1<<6);
-}
-
-#define enA(x) do { if (x) P1OUT |= (1<<7); else P1OUT &= ~(1<<7); } while (0)
-#define enB(x) do { if (x) P3OUT |= (1<<7); else P3OUT &= ~(1<<7); } while (0)
-#define phA(x) do { if (x) P1OUT |= (1<<6); else P1OUT &= ~(1<<6); } while (0)
-#define phB(x) do { if (x) P3OUT |= (1<<6); else P3OUT &= ~(1<<6); } while (0)
-#define X 1
-
-void stepper_bodge_ystep(uint8_t direction, uint8_t steps)
-{
-  static uint8_t phase = 0;
-  uint8_t i = 0 ;
-  volatile uint32_t delay = 0;
-  /* inverted signals EN and PH! */
-  for (i = 0; i < steps; i++)
-    {
-      switch (phase)
-	{
-	case 0:
-	  enA(0);
-	  phA(1);
-	  enB(1);
-	  phB(X);
-	  break;
-	case 1:
-	  enA(1);
-	  phA(X);
-	  enB(0);
-	  phB(1);
-	  break;
-	case 2:
-	  enA(0);
-	  phA(0);
-	  enB(1);
-	  phB(X);
-	  break;
-	case 3:
-	  enA(1);
-	  phA(X);
-	  enB(0);
-	  phB(0);
-	  break;
-	}
-      if (++phase == 4)
-	phase = 0;
-      for (delay = 0; delay<1000; delay++);
-    }
-}
 
 void stepper_Ystep( uint8_t direction, uint8_t steps)
 {

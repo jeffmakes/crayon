@@ -4,7 +4,7 @@
 #define SPEED_SLOW 4000
 #define SPEED_CLEAN 8000
 #define SPEED_NORMAL 1000
-#define SPEED_PRINT 1500
+#define SPEED_PRINT 1200
 
 #define X_MOTOR 1
 #define Y_MOTOR 0
