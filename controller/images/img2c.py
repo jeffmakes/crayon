@@ -85,9 +85,11 @@ const uint16_t image_height = %d;
                     data += [ self._rle_entry() ]
                     self.runlength = 0 
 
-            elif self.runval != None:
-                "Change in value..."
-                data += [ self._rle_entry() ]
+            else:
+                if self.runval != None:
+                    "Change in value..."
+                    data += [ self._rle_entry() ]
+
                 self.runlength = 1
 
             self.runval = pixel
