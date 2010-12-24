@@ -18,8 +18,8 @@
 #define Y_STEP 1
 #define Z_LAYERS 4
 
-#define STARTNOZZLE 43
-#define ENDNOZZLE 45
+#define STARTNOZZLE 37
+#define ENDNOZZLE 40
 
 volatile printstate_t printstate;
 
