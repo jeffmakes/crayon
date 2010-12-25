@@ -25,7 +25,7 @@
 #define ENDNOZZLE 45
 
 volatile printstate_t printstate;
-
+volatile jobstate_t jobstate = JOB_NORMAL;
 /* nozzle fire function call */
 void (*fptr)(void) = NULL;
 
@@ -50,7 +50,7 @@ void print_nextpixel()
 {
   uint8_t nozzle;
   uint16_t currentpos;
-  uint8_t pixelwhite;
+  uint8_t pixelvalue;
   uint8_t zcount;
 
   currentpos = stepper_getXpos(); 
@@ -60,9 +60,11 @@ void print_nextpixel()
       x = currentpos - (PRINT_X_ORIGIN + MARGIN);
       if (printstate == PRINT_PRINTING)
 	{  
-	  pixelwhite = image_getpixel(x, y);
+	  pixelvalue = image_getpixel(x, y);
+	  if (jobstate == JOB_TEST)
+	    pixelvalue = 1;
 	  for (nozzle = STARTNOZZLE; nozzle < ENDNOZZLE; nozzle++)
-	    bk_data[nozzle] = pixelwhite;
+	    bk_data[nozzle] = pixelvalue;
 	    
 	  //	  for (zcount = 0; zcount<Z_LAYERS; zcount++)
 	  printhead_period();		/* fire the nozzles */

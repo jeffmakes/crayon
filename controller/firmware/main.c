@@ -49,8 +49,20 @@ int main( void )
 	  i--;
 	}
 
-      P5OUT ^= (1<<7);
+      P5OUT ^= (1<<4);
     }
+  if (buttons_getstate() & (1<<0))
+    {
+      jobstate = JOB_TEST;
+      P5OUT &= 0x0f;
+      P5OUT |= 12<<4;
+    }
+  else
+    {
+      jobstate = JOB_NORMAL;
+      P5OUT &= 0x0f;
+      P5OUT |= 3<<4;
+    }    
 
   stepper_xhome();
   print_image();
