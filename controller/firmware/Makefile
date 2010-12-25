@@ -6,8 +6,8 @@ LDFLAGS :=
 
 CC := msp430-gcc
 
-C_FILES := main.c wavegen.c printhead.c stepper.c print.c image.c image_data.c
-H_FILES := wavegen.h device.h printhead.h stepper.h print.h image.h
+C_FILES := main.c wavegen.c printhead.c stepper.c print.c image.c image_data.c buttons.c
+H_FILES := wavegen.h device.h printhead.h stepper.h print.h image.h buttons.h
 
 main: $(C_FILES) $(H_FILES)
 	$(CC) -Wl,--section-start -Wl,.video=0x3100 -o $@ $(CFLAGS) $(LDFLAGS) $(C_FILES) 

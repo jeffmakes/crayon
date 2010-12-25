@@ -3,6 +3,7 @@
 #include "wavegen.h"
 #include "printhead.h"
 #include "print.h"
+#include "buttons.h"
 #include <signal.h>
 #include "/usr/msp430/include/msp430/svs.h"
 
@@ -30,13 +31,26 @@ int main( void )
 {
   volatile uint32_t j,i,k, drops, steps;
   uint8_t nozzle =0;
-  uint8_t cleantime = 0;
+  uint8_t startprint = 0;
   uint8_t leds,dir;
 
   init();
   P5DIR = 0xff;
+  P5OUT &= 0x0f;
 
   stepper_setxvelocity(0, 0);
+
+  while (startprint == 0)
+    {
+      i = 100000;
+      while ( (startprint == 0) && (i > 0))
+	{
+	  startprint = buttons_getstate();
+	  i--;
+	}
+
+      P5OUT ^= (1<<7);
+    }
 
   stepper_xhome();
   print_image();
@@ -81,11 +95,13 @@ void init(void)
     /* DCOR = 0 : DCO internal resistor */;
 
   //  SVSCTL = VLD_3 | PORON;		/* SVS at 2.2V */
+  
+  buttons_init();
   wavegen_init();
   printhead_init();
   stepper_init();
-  stepper_enable(X_MOTOR);
-  stepper_enable(Y_MOTOR);
+  stepper_disable(X_MOTOR);
+  stepper_disable(Y_MOTOR);
 
   eint();
 }

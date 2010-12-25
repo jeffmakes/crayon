@@ -9,8 +9,6 @@ const uint16_t wavetable[WAVETABLE_SZ] =
 void wavegen_init()
 {
   volatile uint32_t i = 200000;
-  P4OUT = 0;
-
   /* DAC bus is on P7 and P8, which together may be addressed as PA */
   PAOUT = 0;
   PADIR = 0xe3ff;		/* all outputs, except P8.2, which is DACLAT on
