@@ -18,8 +18,11 @@
 #define Y_STEP 1
 #define Z_LAYERS 4
 
-#define STARTNOZZLE 37
-#define ENDNOZZLE 40
+/* #define STARTNOZZLE 37 */
+/* #define ENDNOZZLE 40 */
+
+#define STARTNOZZLE 40
+#define ENDNOZZLE 45
 
 volatile printstate_t printstate;
 
@@ -60,7 +63,7 @@ void print_nextpixel()
 	  pixelwhite = image_getpixel(x, y);
 	  for (nozzle = STARTNOZZLE; nozzle < ENDNOZZLE; nozzle++)
 	    bk_data[nozzle] = pixelwhite;
-
+	    
 	  //	  for (zcount = 0; zcount<Z_LAYERS; zcount++)
 	  printhead_period();		/* fire the nozzles */
 	}
