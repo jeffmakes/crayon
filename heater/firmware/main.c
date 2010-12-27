@@ -29,7 +29,7 @@ interrupt (PORT2_VECTOR) port2isr(void)
 //Fires at 400Hz (CCR0 timer reset)
 interrupt (TIMERA0_VECTOR) pwm_periodinterrupt()
 {
-  #define SETPOINT 750
+  #define SETPOINT 700
   static uint16_t counter = 0;
   uint16_t temperature = 0; // temperature = degrees C *10. Eg 300 = 30 degrees C
 
