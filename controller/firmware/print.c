@@ -21,8 +21,8 @@
 /* #define STARTNOZZLE 37 */
 /* #define ENDNOZZLE 40 */
 
-#define STARTNOZZLE 30
-#define ENDNOZZLE 50
+#define STARTNOZZLE 0
+#define ENDNOZZLE 90
 
 volatile printstate_t printstate;
 volatile jobstate_t jobstate = JOB_NORMAL;

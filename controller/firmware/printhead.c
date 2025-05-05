@@ -89,6 +89,7 @@ void printhead_period()
   P1OUT &= ~(1<<7);
 
   nchg(1);					  /* release nozzle charge maintain */  
+
   wavegen_drop();		/* droplet */
   ch(1);			/* increment subpixel counter */
   ch(0);

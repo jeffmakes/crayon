@@ -64,6 +64,7 @@ int main( void )
       P5OUT |= 3<<4;
     }    
 
+  stepper_enable(Y_MOTOR);
   stepper_xhome();
   print_image();
   stepper_xhome();
@@ -112,9 +113,9 @@ void init(void)
   wavegen_init();
   printhead_init();
   stepper_init();
-  stepper_disable(X_MOTOR);
-  stepper_disable(Y_MOTOR);
 
+  stepper_disable(X_MOTOR);
+  stepper_enable(X_MOTOR);
   eint();
 }
 
