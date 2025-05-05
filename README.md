@@ -1,6 +1,8 @@
 # Crayon
 This project explores the possibility of making prototype PCB's by inkjet printing wax as an etch resist.
 
+Check out [a talk](https://media.ccc.de/v/27c3-4099-en-file_print_electronics) I gave about the project at 27C3.
+
 The whole printer
 ![The whole printer](photos/wholeprinter.JPG)
 
