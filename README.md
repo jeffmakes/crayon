@@ -9,6 +9,10 @@ The whole printer
 Results
 ![Results](photos/hw-good.JPG)
 
+# Licence
+The hardware designs are licensed under the CERN Open Hardware Licence Version P.
+The firmware files are licensed under the MIT Licence
+
 # System Overview
 
 ## Motion Platform

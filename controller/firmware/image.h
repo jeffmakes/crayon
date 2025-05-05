@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2025 Jeff Gough
+ *
+ * This software is released under the MIT License.
+ * See the LICENSE file for full license text.
+ */
+
 #ifndef __IMAGE_H
 #define __IMAGE_H
 #include <stdint.h>

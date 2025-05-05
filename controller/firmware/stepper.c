@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2025 Jeff Gough
+ *
+ * This software is released under the MIT License.
+ * See the LICENSE file for full license text.
+ */
+
 #include "device.h"
 #include "stepper.h"
 #include "print.h"

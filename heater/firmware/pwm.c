@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2025 Jeff Gough
+ *
+ * This software is released under the MIT License.
+ * See the LICENSE file for full license text.
+ */
+
 //routines for handling PWM generation
 
 #include <msp430x43x.h>

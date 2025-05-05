@@ -1,3 +1,10 @@
+#
+# Copyright (c) 2025 Jeff Gough
+#
+# This software is released under the MIT License.
+# See the LICENSE file for full license text.
+#
+
 ARCH=msp430x2003
 CFLAGS := -mmcu=$(ARCH) -g -Wall 
 #CFLAGS := -mmcu=$(ARCH) -g -Wall -O
